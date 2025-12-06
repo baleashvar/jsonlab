@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Tree Viewer | JSONLab</title>
+<link rel="stylesheet" href="/src/css/styles.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/json-formatter-js/dist/json-formatter.min.css">
+<script src="https://cdn.jsdelivr.net/npm/json-formatter-js"></script>
+</head>
+<body class="flex flex-col h-screen">
+<header class="bg-white dark:bg-gray-800 shadow-sm">
+<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between"><a href="/" class="font-bold">JSONLab</a><button id="theme-toggle" class="p-2 rounded"><svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg></button></nav>
+</header>
+<main class="flex-1 flex flex-col overflow-hidden">
+<div class="bg-white dark:bg-gray-800 border-b px-4 py-2">
+<button id="view-btn" class="px-4 py-2 bg-blue-600 text-white rounded">View Tree</button>
+</div>
+<div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+<div class="flex-1 flex flex-col border-r">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Input</div>
+<textarea id="input" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 resize-none focus:outline-none" placeholder="Paste JSON..."></textarea>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Tree View</div>
+<div id="tree" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 overflow-auto"></div>
+</div>
+</div>
+</main>
+<script type="module" src="/src/js/theme.js"></script>
+<script>
+document.getElementById('view-btn').onclick = () => {
+try {
+const obj = JSON.parse(document.getElementById('input').value);
+const formatter = new JSONFormatter(obj, 2);
+document.getElementById('tree').innerHTML = '';
+document.getElementById('tree').appendChild(formatter.render());
+} catch(e) {
+document.getElementById('tree').innerHTML = '<div class="text-red-600">Invalid JSON: ' + e.message + '</div>';
+}
+};
+</script>
+</body>
+</html>

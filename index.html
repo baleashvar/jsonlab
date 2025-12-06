@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSONLab - Fast, Private JSON Tools | Format, Validate & Convert JSON Online</title>
+  <meta name="description" content="Free online JSON tools that run 100% in your browser. Format, validate, minify JSON. Convert JSON to CSV, XML, YAML. Fast, private, mobile-friendly.">
+  <link rel="canonical" href="https://jsonlab.xyz/">
+  <meta property="og:title" content="JSONLab - Fast, Private JSON Tools">
+  <meta property="og:description" content="Free online JSON tools. Format, validate, convert. 100% client-side, your data never leaves your device.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jsonlab.xyz/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/favicon.ico">
+  <meta name="theme-color" content="#3b82f6">
+  <meta name="keywords" content="JSON formatter, JSON validator, JSON minifier, JSON tools, YAML to JSON, XML to JSON, Base64 encoder, URL encoder, UUID generator, online JSON tools">
+  <meta name="author" content="JSONLab">
+  <meta name="robots" content="index, follow">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "JSONLab",
+    "url": "https://jsonlab.xyz",
+    "description": "Fast, private JSON developer tools",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+        <span class="text-xl font-bold">JSONLab</span>
+      </div>
+      <div class="relative">
+        <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle theme">
+          <svg id="theme-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div id="theme-menu" class="hidden absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+          <button data-theme="light" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">Light</button>
+          <button data-theme="dark" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">Dark</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section class="text-center mb-16">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-4">Fast, Private JSON Tools</h1>
+      <div class="dark-white">
+        <p class="text-xl text-gray-600 mb-2">Everything runs in your browser. Your data never leaves your device.</p>
+        <p class="text-sm text-gray-500">No servers. No tracking. No BS.</p>
+      </div>
+    </section>
+
+    <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16 dark-grey">
+      <a href="/tools/formatter/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">JSON Formatter</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Format and beautify JSON</p>
+      </a>
+      <a href="/tools/validator/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">JSON Validator</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Validate JSON and find errors</p>
+      </a>
+      <a href="/tools/minifier/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">JSON Minifier</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Compress JSON</p>
+      </a>
+      <a href="/tools/tree/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">JSON Tree Viewer</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Collapsible tree view</p>
+      </a>
+      <a href="/tools/yaml-json/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">YAML to JSON</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Convert YAML to JSON</p>
+      </a>
+      <a href="/tools/xml-json/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">XML to JSON</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Convert XML to JSON</p>
+      </a>
+      <a href="/tools/base64/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">Base64 Encode/Decode</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Encode or decode Base64</p>
+      </a>
+      <a href="/tools/url-encode/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">URL Encode/Decode</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Encode or decode URLs</p>
+      </a>
+      <a href="/tools/uuid/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-1">UUID Generator</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Generate random UUIDs</p>
+      </a>
+    </section>
+
+    <section class="bg-blue-50 dark:bg-gray-800/50 rounded-lg p-8 text-center dark-grey">
+      <h2 class="text-2xl font-bold mb-4">Why JSONLab?</h2>
+      <div class="grid sm:grid-cols-3 gap-6 text-left">
+        <div>
+          <h3 class="font-bold mb-2">⚡ Lightning Fast</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Optimized for mobile. Sub-second load times.</p>
+        </div>
+        <div>
+          <h3 class="font-bold mb-2">🔒 100% Private</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">All processing happens locally. Zero data collection.</p>
+        </div>
+        <div>
+          <h3 class="font-bold mb-2">📱 Mobile First</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Works perfectly on phones and tablets.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="mt-16 py-8 border-t border-gray-200 dark:border-gray-800 dark-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid sm:grid-cols-3 gap-8 mb-8">
+        <div>
+          <h3 class="font-bold mb-3">JSON Tools</h3>
+          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <li><a href="/tools/formatter/" class="hover:text-primary">JSON Formatter</a></li>
+            <li><a href="/tools/validator/" class="hover:text-primary">JSON Validator</a></li>
+            <li><a href="/tools/minifier/" class="hover:text-primary">JSON Minifier</a></li>
+            <li><a href="/tools/tree/" class="hover:text-primary">JSON Tree Viewer</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold mb-3">Converters</h3>
+          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <li><a href="/tools/yaml-json/" class="hover:text-primary">YAML to JSON</a></li>
+            <li><a href="/tools/xml-json/" class="hover:text-primary">XML to JSON</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="font-bold mb-3">Utilities</h3>
+          <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+            <li><a href="/tools/base64/" class="hover:text-primary">Base64 Encode/Decode</a></li>
+            <li><a href="/tools/url-encode/" class="hover:text-primary">URL Encode/Decode</a></li>
+            <li><a href="/tools/uuid/" class="hover:text-primary">UUID Generator</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+        <p>&copy; 2024 JSONLab. Open source. Privacy first.</p>
+        <p class="mt-2">We'd love to hear your feedback! Email us at <a href="mailto:sollarity1@gmail.com" class="text-primary hover:underline">sollarity1@gmail.com</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    const icons = {
+      light: '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>',
+      dark: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+    };
+    
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.className = theme;
+    document.getElementById('theme-icon').innerHTML = icons[theme];
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.getElementById('theme-menu').classList.toggle('hidden');
+    });
+    
+    document.querySelectorAll('[data-theme]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newTheme = btn.dataset.theme;
+        document.documentElement.className = newTheme;
+        localStorage.setItem('theme', newTheme);
+        document.getElementById('theme-icon').innerHTML = icons[newTheme];
+        document.getElementById('theme-menu').classList.add('hidden');
+      });
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#theme-toggle') && !e.target.closest('#theme-menu')) {
+        document.getElementById('theme-menu').classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

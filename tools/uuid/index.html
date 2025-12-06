@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UUID Generator | JSONLab</title>
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between"><a href="/" class="flex items-center gap-2 font-bold"><svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>JSONLab</a><button id="theme-toggle" class="p-2 rounded"><svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg></button></nav>
+  </header>
+  <main class="flex-1 flex flex-col items-center justify-center p-8">
+    <div class="max-w-2xl w-full bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 rounded-lg shadow-lg p-8">
+      <h1 class="text-3xl font-bold mb-6 text-center">UUID Generator</h1>
+      <div class="mb-6">
+        <label class="block text-sm font-medium mb-2">Generated UUIDs</label>
+        <textarea id="output" readonly class="w-full h-64 p-4 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor rounded border border-gray-300 dark:border-gray-700 focus:outline-none text-sm"></textarea>
+      </div>
+      <div class="flex gap-2 mb-4">
+        <button id="gen-btn" class="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-blue-600 font-medium">Generate UUID</button>
+        <button id="gen10-btn" class="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-blue-600 font-medium">Generate 10</button>
+        <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Copy</button>
+        <button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Clear</button>
+      </div>
+    </div>
+  </main>
+  <div id="toast" class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded shadow-lg hidden">Copied!</div>
+  <script type="module" src="/src/js/theme.js"></script>
+  <script>
+    const output = document.getElementById('output');
+    document.getElementById('gen-btn').addEventListener('click', () => {
+      output.value += crypto.randomUUID() + '\n';
+    });
+    document.getElementById('gen10-btn').addEventListener('click', () => {
+      for(let i=0; i<10; i++) output.value += crypto.randomUUID() + '\n';
+    });
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(output.value);
+      const toast = document.getElementById('toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2000);
+    });
+    document.getElementById('clear-btn').addEventListener('click', () => output.value = '');
+  </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base64 Encoder/Decoder | JSONLab</title>
+<link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+<header class="bg-white dark:bg-gray-800 shadow-sm">
+<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between"><a href="/" class="font-bold">JSONLab</a><button id="theme-toggle" class="p-2 rounded"><svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg></button></nav>
+</header>
+<main class="flex-1 flex flex-col overflow-hidden">
+<div class="bg-white dark:bg-gray-800 border-b px-4 py-2">
+<button id="encode-btn" class="px-4 py-2 bg-blue-600 text-white rounded">Encode</button>
+<button id="decode-btn" class="px-4 py-2 bg-blue-600 text-white rounded ml-2">Decode</button>
+<button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded ml-2">Copy</button>
+</div>
+<div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+<div class="flex-1 flex flex-col border-r">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Input</div>
+<textarea id="input" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 resize-none focus:outline-none" placeholder="Enter text..."></textarea>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Output</div>
+<pre id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 overflow-auto"></pre>
+</div>
+</div>
+</main>
+<script type="module" src="/src/js/theme.js"></script>
+<script>
+document.getElementById('encode-btn').onclick = () => {
+try { document.getElementById('output').textContent = btoa(document.getElementById('input').value); }
+catch(e) { document.getElementById('output').textContent = 'Error: ' + e.message; }
+};
+document.getElementById('decode-btn').onclick = () => {
+try { document.getElementById('output').textContent = atob(document.getElementById('input').value); }
+catch(e) { document.getElementById('output').textContent = 'Invalid Base64'; }
+};
+document.getElementById('copy-btn').onclick = async () => {
+await navigator.clipboard.writeText(document.getElementById('output').textContent);
+alert('Copied!');
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Formatter - Format & Beautify JSON Online | JSONLab</title>
+  <meta name="description" content="Free online JSON formatter. Beautify, validate, and format JSON instantly. Works offline. Mobile-friendly. Your data stays private in your browser.">
+  <link rel="canonical" href="https://jsonlab.xyz/tools/formatter/">
+  <meta property="og:title" content="JSON Formatter - Fast & Private">
+  <meta property="og:description" content="Format and beautify JSON online. 100% client-side processing.">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "JSON Formatter",
+    "applicationCategory": "DeveloperApplication",
+    "offers": { "@type": "Offer", "price": "0" }
+  }
+  </script>
+</head>
+<body class="flex flex-col h-screen">
+  <header class="bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold">
+        <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+        JSONLab
+      </a>
+      <div class="relative">
+        <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle theme">
+          <svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div id="theme-menu" class="hidden absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+          <button data-theme="light" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">☀️ Light</button>
+          <button data-theme="dark" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">🌙 Dark</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+      <div class="flex flex-wrap gap-2 items-center">
+        <button id="format-btn" class="px-4 py-2 bg-primary text-white rounded hover:bg-blue-600 font-medium">Format</button>
+        <button id="minify-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Minify</button>
+        <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Copy</button>
+        <button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Clear</button>
+        <select id="indent-select" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded text-sm">
+          <option value="2">2 spaces</option>
+          <option value="4">4 spaces</option>
+          <option value="tab">Tab</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium">
+          Input
+        </div>
+        <textarea 
+          id="input" 
+          class="flex-1 p-4 bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor resize-none focus:outline-none text-sm"
+          placeholder='Paste JSON here or drop a file...'
+          spellcheck="false"
+        ></textarea>
+      </div>
+
+      <div class="flex-1 flex flex-col">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium flex items-center justify-between">
+          <span>Output</span>
+          <span id="status" class="text-xs"></span>
+        </div>
+        <pre id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor overflow-auto text-sm"></pre>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded shadow-lg hidden">
+    Copied!
+  </div>
+
+  <script type="module">
+    const input = document.getElementById('input');
+    const output = document.getElementById('output');
+    const status = document.getElementById('status');
+    const toast = document.getElementById('toast');
+    
+    const worker = new Worker('/src/js/formatter.worker.js', { type: 'module' });
+    
+    worker.onmessage = (e) => {
+      const { success, result, error, line, column } = e.data;
+      
+      if (success) {
+        output.textContent = result;
+        status.textContent = '✓ Valid JSON';
+        status.className = 'text-xs text-green-600 dark:text-green-400';
+      } else {
+        output.textContent = '';
+        status.textContent = `✗ Error at line ${line}, column ${column}: ${error}`;
+        status.className = 'text-xs text-red-600 dark:text-red-400';
+      }
+    };
+
+    const format = () => {
+      const indent = document.getElementById('indent-select').value;
+      worker.postMessage({ 
+        action: 'format', 
+        data: input.value,
+        indent: indent === 'tab' ? '\t' : parseInt(indent)
+      });
+    };
+
+    const minify = () => {
+      worker.postMessage({ action: 'minify', data: input.value });
+    };
+
+    document.getElementById('format-btn').addEventListener('click', format);
+    document.getElementById('minify-btn').addEventListener('click', minify);
+    
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(output.textContent);
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2000);
+    });
+
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      input.value = '';
+      output.textContent = '';
+      status.textContent = '';
+    });
+
+    // Keyboard shortcuts
+    input.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        format();
+      }
+    });
+
+    // File drop
+    input.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => input.value = e.target.result;
+        reader.readAsText(file);
+      }
+    });
+    input.addEventListener('dragover', (e) => e.preventDefault());
+
+    // Theme toggle
+    const icons = {
+      light: '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>',
+      dark: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+    };
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.className = theme;
+    document.getElementById('theme-icon').innerHTML = icons[theme];
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.getElementById('theme-menu').classList.toggle('hidden');
+    });
+    
+    document.querySelectorAll('[data-theme]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newTheme = btn.dataset.theme;
+        document.documentElement.className = newTheme;
+        localStorage.setItem('theme', newTheme);
+        document.getElementById('theme-icon').innerHTML = icons[newTheme];
+        document.getElementById('theme-menu').classList.add('hidden');
+      });
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#theme-toggle') && !e.target.closest('#theme-menu')) {
+        document.getElementById('theme-menu').classList.add('hidden');
+      }
+    });
+
+    // Sample JSON for demo
+    if (!input.value) {
+      input.value = '{"name":"JSONLab","fast":true,"tools":["formatter","validator","minifier"]}';
+    }
+  </script>
+</body>
+</html>

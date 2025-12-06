@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Minifier - Compress JSON Online | JSONLab</title>
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold">
+        <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+        JSONLab
+      </a>
+      <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+        <svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
+      </button>
+    </nav>
+  </header>
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
+      <button id="minify-btn" class="px-4 py-2 bg-primary text-white rounded hover:bg-blue-600 font-medium">Minify</button>
+      <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300 ml-2">Copy</button>
+      <button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300 ml-2">Clear</button>
+      <span id="stats" class="text-sm text-gray-600 dark:text-gray-300 ml-4"></span>
+    </div>
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium">Input</div>
+        <textarea id="input" class="flex-1 p-4 bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor resize-none focus:outline-none text-sm" placeholder="Paste JSON here..." spellcheck="false"></textarea>
+      </div>
+      <div class="flex-1 flex flex-col">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium">Output</div>
+        <pre id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor overflow-auto text-sm"></pre>
+      </div>
+    </div>
+  </main>
+  <div id="toast" class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded shadow-lg hidden">Copied!</div>
+  <script type="module" src="/src/js/theme.js"></script>
+  <script>
+    document.getElementById('minify-btn').addEventListener('click', () => {
+      try {
+        const before = document.getElementById('input').value.length;
+        const minified = JSON.stringify(JSON.parse(document.getElementById('input').value));
+        document.getElementById('output').textContent = minified;
+        const saved = ((1 - minified.length / before) * 100).toFixed(1);
+        document.getElementById('stats').textContent = `Reduced by ${saved}% (${before} → ${minified.length} bytes)`;
+      } catch (e) {
+        document.getElementById('output').textContent = '';
+        document.getElementById('stats').textContent = '✗ Invalid JSON';
+      }
+    });
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      await navigator.clipboard.writeText(document.getElementById('output').textContent);
+      const toast = document.getElementById('toast');
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2000);
+    });
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      document.getElementById('input').value = '';
+      document.getElementById('output').textContent = '';
+      document.getElementById('stats').textContent = '';
+    });
+  </script>
+</body>
+</html>

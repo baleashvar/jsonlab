@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.code-editor {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  tab-size: 2;
+}
+
+html.dark { background: #0f172a; color: #e2e8f0; }
+html.dark body { background: #0f172a; color: #e2e8f0; }
+
+.dark-white { color: inherit; }
+html.dark .dark-white { color: #ffffff !important; }
+
+.dark-grey { color: inherit; }
+html.dark .dark-grey { color: #94a3b8 !important; }
+
+html.dark header { background: #1e293b !important; color: #ffffff !important; }
+html.dark .bg-white { background: #1e293b !important; }
+html.dark .bg-gray-50 { background: #0f172a !important; }
+html.dark .border-gray-200 { border-color: #334155 !important; }
+html.dark textarea, html.dark pre { background: #1e293b !important; color: #e2e8f0 !important; }
+html.dark button { color: #ffffff !important; }
+html.dark select { color: #ffffff !important; background: #334155 !important; }
+html.dark .bg-gray-200 { background: #334155 !important; color: #ffffff !important; }
+html.dark .dark\:bg-gray-700 { background: #334155 !important; color: #ffffff !important; }
