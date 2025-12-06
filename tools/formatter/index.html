@@ -87,66 +87,32 @@
     const status = document.getElementById('status');
     const toast = document.getElementById('toast');
     
-    let worker;
-    try {
-      worker = new Worker('/src/js/formatter.worker.js', { type: 'module' });
-    } catch (e) {
-      // Fallback: no worker, process inline
-      worker = null;
-    }
-    
-    if (worker) {
-      worker.onmessage = (e) => {
-        const { success, result, error, line, column } = e.data;
-        
-        if (success) {
-          output.textContent = result;
-          status.textContent = '✓ Valid JSON';
-          status.className = 'text-xs text-green-600 dark:text-green-400';
-        } else {
-          output.textContent = '';
-          status.textContent = `✗ Error at line ${line}, column ${column}: ${error}`;
-          status.className = 'text-xs text-red-600 dark:text-red-400';
-        }
-      };
-    }
-
     const format = () => {
       const indent = document.getElementById('indent-select').value;
       const indentValue = indent === 'tab' ? '\t' : parseInt(indent);
       
-      if (worker) {
-        worker.postMessage({ action: 'format', data: input.value, indent: indentValue });
-      } else {
-        // Inline fallback
-        try {
-          const parsed = JSON.parse(input.value);
-          output.textContent = JSON.stringify(parsed, null, indentValue);
-          status.textContent = '✓ Valid JSON';
-          status.className = 'text-xs text-green-600 dark:text-green-400';
-        } catch (e) {
-          output.textContent = '';
-          status.textContent = `✗ Error: ${e.message}`;
-          status.className = 'text-xs text-red-600 dark:text-red-400';
-        }
+      try {
+        const parsed = JSON.parse(input.value);
+        output.textContent = JSON.stringify(parsed, null, indentValue);
+        status.textContent = '✓ Valid JSON';
+        status.className = 'text-xs text-green-600 dark:text-green-400';
+      } catch (e) {
+        output.textContent = '';
+        status.textContent = `✗ Error: ${e.message}`;
+        status.className = 'text-xs text-red-600 dark:text-red-400';
       }
     };
 
     const minify = () => {
-      if (worker) {
-        worker.postMessage({ action: 'minify', data: input.value });
-      } else {
-        // Inline fallback
-        try {
-          const parsed = JSON.parse(input.value);
-          output.textContent = JSON.stringify(parsed);
-          status.textContent = '✓ Valid JSON';
-          status.className = 'text-xs text-green-600 dark:text-green-400';
-        } catch (e) {
-          output.textContent = '';
-          status.textContent = `✗ Error: ${e.message}`;
-          status.className = 'text-xs text-red-600 dark:text-red-400';
-        }
+      try {
+        const parsed = JSON.parse(input.value);
+        output.textContent = JSON.stringify(parsed);
+        status.textContent = '✓ Valid JSON';
+        status.className = 'text-xs text-green-600 dark:text-green-400';
+      } catch (e) {
+        output.textContent = '';
+        status.textContent = `✗ Error: ${e.message}`;
+        status.className = 'text-xs text-red-600 dark:text-red-400';
       }
     };
 
