@@ -1,5 +1,6 @@
 export default {
   content: ['./**/*.html', './src/**/*.js'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -7,8 +8,5 @@ export default {
       }
     }
   },
-  plugins: [],
-  safelist: [
-    { pattern: /^(dark|grey|ocean):/ }
-  ]
+  plugins: []
 };

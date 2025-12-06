@@ -2,10 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+}
+
 .code-editor {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   tab-size: 2;
 }
+
+html { background: #ffffff; color: #000000; }
+html body { background: #ffffff; color: #000000; }
 
 html.dark { background: #0f172a; color: #e2e8f0; }
 html.dark body { background: #0f172a; color: #e2e8f0; }
