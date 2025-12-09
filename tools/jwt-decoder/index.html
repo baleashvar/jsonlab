@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-564CXCJ8');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JWT Decoder | JSONLab</title>
+<meta name="description" content="Decode JWT tokens online. Fast, free, and private JWT decoder.">
+<link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-564CXCJ8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<header class="bg-white dark:bg-gray-800 shadow-sm">
+<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+<a href="/" class="flex items-center gap-2 font-bold">
+<svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+JSONLab
+</a>
+<button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+<svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
+</button>
+</nav>
+</header>
+<main class="flex-1 flex flex-col overflow-hidden p-4">
+<div class="max-w-4xl mx-auto w-full flex flex-col gap-4">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<label class="block text-sm font-medium mb-2">JWT Token</label>
+<textarea id="jwt-input" class="w-full h-32 p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded border border-gray-300 dark:border-gray-700 focus:outline-none text-sm" placeholder="Paste JWT token here...&#10;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" spellcheck="false"></textarea>
+<button id="decode-btn" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Decode</button>
+<button id="clear-btn" class="mt-2 ml-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Clear</button>
+</div>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<h3 class="text-lg font-bold mb-2">Header</h3>
+<pre id="header" class="p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded text-sm overflow-auto max-h-64"></pre>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<h3 class="text-lg font-bold mb-2">Payload</h3>
+<pre id="payload" class="p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded text-sm overflow-auto max-h-64"></pre>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<h3 class="text-lg font-bold mb-2">Signature</h3>
+<pre id="signature" class="p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded text-sm overflow-auto"></pre>
+</div>
+<div id="error" class="hidden bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 p-4 rounded"></div>
+</div>
+</main>
+<script type="module" src="/src/js/theme.js"></script>
+<script>
+function base64UrlDecode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+}
+
+function decodeJWT(token) {
+  const parts = token.split('.');
+  if (parts.length !== 3) throw new Error('Invalid JWT format');
+  
+  return {
+    header: JSON.parse(base64UrlDecode(parts[0])),
+    payload: JSON.parse(base64UrlDecode(parts[1])),
+    signature: parts[2]
+  };
+}
+
+document.getElementById('decode-btn').onclick = () => {
+  try {
+    const jwt = document.getElementById('jwt-input').value.trim();
+    const decoded = decodeJWT(jwt);
+    
+    document.getElementById('header').textContent = JSON.stringify(decoded.header, null, 2);
+    document.getElementById('payload').textContent = JSON.stringify(decoded.payload, null, 2);
+    document.getElementById('signature').textContent = decoded.signature;
+    document.getElementById('error').classList.add('hidden');
+  } catch(e) {
+    document.getElementById('error').textContent = 'Error: ' + e.message;
+    document.getElementById('error').classList.remove('hidden');
+    document.getElementById('header').textContent = '';
+    document.getElementById('payload').textContent = '';
+    document.getElementById('signature').textContent = '';
+  }
+};
+
+document.getElementById('clear-btn').onclick = () => {
+  document.getElementById('jwt-input').value = '';
+  document.getElementById('header').textContent = '';
+  document.getElementById('payload').textContent = '';
+  document.getElementById('signature').textContent = '';
+  document.getElementById('error').classList.add('hidden');
+};
+</script>
+</body>
+</html>

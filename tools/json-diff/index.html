@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-564CXCJ8');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Diff - Compare JSON | JSONLab</title>
+<meta name="description" content="Compare two JSON objects and see the differences. Fast, free JSON diff tool.">
+<link rel="stylesheet" href="/src/css/styles.css">
+<style>
+.diff-added { background: #d4edda; color: #155724; }
+.diff-removed { background: #f8d7da; color: #721c24; }
+.diff-changed { background: #fff3cd; color: #856404; }
+html.dark .diff-added { background: #1e4620; color: #7dff8a; }
+html.dark .diff-removed { background: #5a1a1a; color: #ff7d7d; }
+html.dark .diff-changed { background: #4a3f1a; color: #ffd97d; }
+</style>
+</head>
+<body class="flex flex-col h-screen">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-564CXCJ8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<header class="bg-white dark:bg-gray-800 shadow-sm">
+<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+<a href="/" class="flex items-center gap-2 font-bold">
+<svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+JSONLab
+</a>
+<button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+<svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
+</button>
+</nav>
+</header>
+<main class="flex-1 flex flex-col overflow-hidden">
+<div class="bg-white dark:bg-gray-800 border-b px-4 py-2">
+<button id="compare-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Compare</button>
+<button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded ml-2 hover:bg-gray-300">Clear</button>
+</div>
+<div class="flex-1 flex overflow-hidden">
+<div class="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">JSON 1 (Original)</div>
+<textarea id="json1" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 code-editor resize-none focus:outline-none text-sm" placeholder='{"name":"John","age":30}' spellcheck="false"></textarea>
+</div>
+<div class="flex-1 flex flex-col border-r border-gray-200 dark:border-gray-700">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">JSON 2 (Modified)</div>
+<textarea id="json2" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 code-editor resize-none focus:outline-none text-sm" placeholder='{"name":"Jane","age":30}' spellcheck="false"></textarea>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Differences</div>
+<div id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 overflow-auto text-sm"></div>
+</div>
+</div>
+</main>
+<script type="module" src="/src/js/theme.js"></script>
+<script>
+function compareJSON(obj1, obj2, path = '') {
+  const diffs = [];
+  const keys = new Set([...Object.keys(obj1), ...Object.keys(obj2)]);
+  
+  keys.forEach(key => {
+    const newPath = path ? `${path}.${key}` : key;
+    const val1 = obj1[key];
+    const val2 = obj2[key];
+    
+    if (!(key in obj2)) {
+      diffs.push(`<div class="diff-removed p-2 mb-1 rounded">- ${newPath}: ${JSON.stringify(val1)}</div>`);
+    } else if (!(key in obj1)) {
+      diffs.push(`<div class="diff-added p-2 mb-1 rounded">+ ${newPath}: ${JSON.stringify(val2)}</div>`);
+    } else if (JSON.stringify(val1) !== JSON.stringify(val2)) {
+      if (typeof val1 === 'object' && typeof val2 === 'object' && val1 !== null && val2 !== null) {
+        diffs.push(...compareJSON(val1, val2, newPath));
+      } else {
+        diffs.push(`<div class="diff-changed p-2 mb-1 rounded">~ ${newPath}: ${JSON.stringify(val1)} → ${JSON.stringify(val2)}</div>`);
+      }
+    }
+  });
+  
+  return diffs;
+}
+
+document.getElementById('compare-btn').onclick = () => {
+  try {
+    const obj1 = JSON.parse(document.getElementById('json1').value);
+    const obj2 = JSON.parse(document.getElementById('json2').value);
+    const diffs = compareJSON(obj1, obj2);
+    
+    if (diffs.length === 0) {
+      document.getElementById('output').innerHTML = '<div class="text-green-600 dark:text-green-400 font-bold">✓ JSONs are identical</div>';
+    } else {
+      document.getElementById('output').innerHTML = diffs.join('');
+    }
+  } catch(e) {
+    document.getElementById('output').innerHTML = '<div class="text-red-600 dark:text-red-400">Error: ' + e.message + '</div>';
+  }
+};
+
+document.getElementById('clear-btn').onclick = () => {
+  document.getElementById('json1').value = '';
+  document.getElementById('json2').value = '';
+  document.getElementById('output').innerHTML = '';
+};
+</script>
+</body>
+</html>

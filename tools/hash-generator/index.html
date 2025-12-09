@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-564CXCJ8');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hash Generator - MD5, SHA256 | JSONLab</title>
+<meta name="description" content="Generate MD5, SHA-1, SHA-256 hashes online. Fast, free, and private hash generator.">
+<link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-564CXCJ8"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<header class="bg-white dark:bg-gray-800 shadow-sm">
+<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+<a href="/" class="flex items-center gap-2 font-bold">
+<svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+JSONLab
+</a>
+<button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+<svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
+</button>
+</nav>
+</header>
+<main class="flex-1 flex flex-col overflow-hidden p-4">
+<div class="max-w-4xl mx-auto w-full flex flex-col gap-4">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<label class="block text-sm font-medium mb-2">Input Text</label>
+<textarea id="input" class="w-full h-32 p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded border border-gray-300 dark:border-gray-700 focus:outline-none text-sm" placeholder="Enter text to hash..." spellcheck="false"></textarea>
+<button id="generate-btn" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Generate Hashes</button>
+<button id="clear-btn" class="mt-2 ml-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Clear</button>
+</div>
+<div class="space-y-3">
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<div class="flex justify-between items-center mb-2">
+<h3 class="text-sm font-bold">MD5</h3>
+<button onclick="copy('md5')" class="text-xs px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Copy</button>
+</div>
+<pre id="md5" class="p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded text-sm overflow-auto"></pre>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<div class="flex justify-between items-center mb-2">
+<h3 class="text-sm font-bold">SHA-1</h3>
+<button onclick="copy('sha1')" class="text-xs px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Copy</button>
+</div>
+<pre id="sha1" class="p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded text-sm overflow-auto"></pre>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+<div class="flex justify-between items-center mb-2">
+<h3 class="text-sm font-bold">SHA-256</h3>
+<button onclick="copy('sha256')" class="text-xs px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Copy</button>
+</div>
+<pre id="sha256" class="p-3 bg-gray-50 dark:bg-gray-900 dark:text-gray-200 code-editor rounded text-sm overflow-auto"></pre>
+</div>
+</div>
+</div>
+</main>
+<div id="toast" class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded shadow-lg hidden">Copied!</div>
+<script type="module" src="/src/js/theme.js"></script>
+<script>
+async function generateHash(algorithm, text) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const hashBuffer = await crypto.subtle.digest(algorithm, data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+document.getElementById('generate-btn').onclick = async () => {
+  const text = document.getElementById('input').value;
+  if (!text) return;
+  
+  try {
+    document.getElementById('md5').textContent = 'MD5 not available in browser (use SHA-256 instead)';
+    document.getElementById('sha1').textContent = await generateHash('SHA-1', text);
+    document.getElementById('sha256').textContent = await generateHash('SHA-256', text);
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+};
+
+document.getElementById('clear-btn').onclick = () => {
+  document.getElementById('input').value = '';
+  document.getElementById('md5').textContent = '';
+  document.getElementById('sha1').textContent = '';
+  document.getElementById('sha256').textContent = '';
+};
+
+async function copy(id) {
+  const text = document.getElementById(id).textContent;
+  if (!text) return;
+  await navigator.clipboard.writeText(text);
+  const toast = document.getElementById('toast');
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 2000);
+}
+</script>
+</body>
+</html>
