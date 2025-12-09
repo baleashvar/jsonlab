@@ -55,6 +55,11 @@
         <button id="format-btn" class="px-4 py-2 bg-primary text-white rounded hover:bg-blue-600 font-medium">Format</button>
         <button id="minify-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Minify</button>
         <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Copy</button>
+        <button id="download-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Download</button>
+        <label class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300 cursor-pointer">
+          Upload
+          <input type="file" id="upload-btn" accept=".json,.txt" class="hidden">
+        </label>
         <button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Clear</button>
         <select id="indent-select" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded text-sm">
           <option value="2">2 spaces</option>
@@ -66,8 +71,9 @@
 
     <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
       <div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
-        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium">
-          Input
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium flex justify-between">
+          <span>Input</span>
+          <span id="input-stats" class="text-xs text-gray-500"></span>
         </div>
         <textarea 
           id="input" 
@@ -80,9 +86,12 @@
       <div class="flex-1 flex flex-col">
         <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium flex items-center justify-between">
           <span>Output</span>
-          <span id="status" class="text-xs"></span>
+          <div class="flex gap-3">
+            <span id="output-stats" class="text-xs text-gray-500"></span>
+            <span id="status" class="text-xs"></span>
+          </div>
         </div>
-        <pre id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor overflow-auto text-sm"></pre>
+        <div id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 dark:text-gray-200 grey:text-gray-100 ocean:text-cyan-50 code-editor overflow-auto text-sm whitespace-pre font-mono"></div>
       </div>
     </div>
   </main>
@@ -92,11 +101,42 @@
   </div>
 
   <script type="module">
-    // v1.1
+    // v2.0
     const input = document.getElementById('input');
     const output = document.getElementById('output');
     const status = document.getElementById('status');
     const toast = document.getElementById('toast');
+    
+    const updateStats = () => {
+      const text = input.value;
+      const chars = text.length;
+      const lines = text ? text.split('\n').length : 0;
+      document.getElementById('input-stats').textContent = `${chars} chars, ${lines} lines`;
+      
+      const outText = output.textContent;
+      const outChars = outText.length;
+      const outLines = outText ? outText.split('\n').length : 0;
+      document.getElementById('output-stats').textContent = outChars ? `${outChars} chars, ${outLines} lines` : '';
+    };
+    
+    const syntaxHighlight = (json) => {
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      return json.replace(/"(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, (match) => {
+        let cls = 'json-number';
+        if (/^"/.test(match)) {
+          if (/:$/.test(match)) {
+            cls = 'json-key';
+          } else {
+            cls = 'json-string';
+          }
+        } else if (/true|false/.test(match)) {
+          cls = 'json-boolean';
+        } else if (/null/.test(match)) {
+          cls = 'json-null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+      });
+    };
     
     const format = () => {
       const indent = document.getElementById('indent-select').value;
@@ -104,7 +144,8 @@
       
       try {
         const parsed = JSON.parse(input.value);
-        output.textContent = JSON.stringify(parsed, null, indentValue);
+        const formatted = JSON.stringify(parsed, null, indentValue);
+        output.innerHTML = syntaxHighlight(formatted);
         status.textContent = '✓ Valid JSON';
         status.className = 'text-xs text-green-600 dark:text-green-400';
       } catch (e) {
@@ -112,12 +153,14 @@
         status.textContent = `✗ Error: ${e.message}`;
         status.className = 'text-xs text-red-600 dark:text-red-400';
       }
+      updateStats();
     };
 
     const minify = () => {
       try {
         const parsed = JSON.parse(input.value);
-        output.textContent = JSON.stringify(parsed);
+        const minified = JSON.stringify(parsed);
+        output.innerHTML = syntaxHighlight(minified);
         status.textContent = '✓ Valid JSON';
         status.className = 'text-xs text-green-600 dark:text-green-400';
       } catch (e) {
@@ -125,13 +168,15 @@
         status.textContent = `✗ Error: ${e.message}`;
         status.className = 'text-xs text-red-600 dark:text-red-400';
       }
+      updateStats();
     };
 
     document.getElementById('format-btn').addEventListener('click', format);
     document.getElementById('minify-btn').addEventListener('click', minify);
     
     document.getElementById('copy-btn').addEventListener('click', async () => {
-      await navigator.clipboard.writeText(output.textContent);
+      const text = output.textContent || output.innerText;
+      await navigator.clipboard.writeText(text);
       toast.classList.remove('hidden');
       setTimeout(() => toast.classList.add('hidden'), 2000);
     });
@@ -140,7 +185,47 @@
       input.value = '';
       output.textContent = '';
       status.textContent = '';
+      updateStats();
     });
+
+    // Download button
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const text = output.textContent || output.innerText || input.value;
+      if (!text) return;
+      const blob = new Blob([text], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'formatted.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Upload button
+    document.getElementById('upload-btn').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          input.value = e.target.result;
+          updateStats();
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Update stats on input and output
+    input.addEventListener('input', updateStats);
+    
+    const updateOutputStats = () => {
+      const outText = output.textContent || output.innerText;
+      const outChars = outText.length;
+      const outLines = outText ? outText.split('\n').length : 0;
+      document.getElementById('output-stats').textContent = outChars ? `${outChars} chars, ${outLines} lines` : '';
+    };
+    
+    const observer = new MutationObserver(updateOutputStats);
+    observer.observe(output, { childList: true, characterData: true, subtree: true });
 
     // Keyboard shortcuts
     input.addEventListener('keydown', (e) => {
@@ -195,6 +280,7 @@
     if (!input.value) {
       input.value = '{"name":"JSONLab","fast":true,"tools":["formatter","validator","minifier"]}';
     }
+    updateStats();
   </script>
 </body>
 </html>

@@ -32,3 +32,16 @@ html.dark button { color: #ffffff !important; }
 html.dark select { color: #ffffff !important; background: #334155 !important; }
 html.dark .bg-gray-200 { background: #334155 !important; color: #ffffff !important; }
 html.dark .dark\:bg-gray-700 { background: #334155 !important; color: #ffffff !important; }
+
+/* JSON Syntax Highlighting */
+.json-key { color: #0451a5; }
+.json-string { color: #a31515; }
+.json-number { color: #098658; }
+.json-boolean { color: #0000ff; }
+.json-null { color: #808080; }
+
+html.dark .json-key { color: #9cdcfe; }
+html.dark .json-string { color: #ce9178; }
+html.dark .json-number { color: #b5cea8; }
+html.dark .json-boolean { color: #569cd6; }
+html.dark .json-null { color: #808080; }
