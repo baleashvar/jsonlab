@@ -1,9 +1,4 @@
 User-agent: *
 Allow: /
+
 Sitemap: https://jsonlab.xyz/sitemap.xml
-
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
