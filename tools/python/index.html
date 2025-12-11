@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Compiler - JSONLab</title>
+  <meta name="description" content="Run Python code in your browser. Instant execution with Skulpt, full Python with Pyodide.">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <style>
+    .editor-container { height: calc(100vh - 120px); }
+    .editor-panel, .output-panel { height: 100%; }
+    .code-editor { height: calc(100% - 60px); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+    .output-area { height: calc(100% - 60px); background: #1e1e1e; color: #d4d4d4; }
+    .toolbar { height: 60px; }
+  </style>
+</head>
+<body>
+  <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <a href="/" class="flex items-center gap-2">
+          <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+          <span class="text-xl font-bold">JSONLab</span>
+        </a>
+        <span class="text-gray-400">/</span>
+        <span class="text-lg">Python Compiler</span>
+      </div>
+      <div class="relative">
+        <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          <svg id="theme-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <div class="editor-container flex">
+    <!-- Left Panel - Editor -->
+    <div class="editor-panel w-1/2 border-r border-gray-300 dark:border-gray-600">
+      <div class="toolbar bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600 p-3 flex items-center gap-2 flex-wrap">
+        <button id="run-btn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+          ▶ Run
+        </button>
+        <button id="clear-btn" class="px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+          Clear
+        </button>
+        <div class="w-2"></div>
+        <button id="install-btn" class="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700" disabled>
+          📦 Install Libs
+        </button>
+        <button id="copy-btn" class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" title="Copy code">
+          📋
+        </button>
+        <button id="info-btn" class="px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700" title="Shortcuts & Info">
+          ℹ️
+        </button>
+        <span id="mode-status" class="text-sm text-blue-600 dark:text-blue-400 ml-auto">Loading Libraries</span>
+      </div>
+      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" 
+        placeholder="# Write your Python code here..." spellcheck="false">print("Hello, World!")
+print("Welcome to Python compiler!")
+
+for i in range(5):
+    print(f"Count: {i}")
+    
+# Math example
+import math
+print(f"Pi = {math.pi:.4f}")</textarea>
+    </div>
+
+    <!-- Right Panel - Output -->
+    <div class="output-panel w-1/2">
+      <div class="toolbar bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600 p-3 flex items-center gap-2">
+        <span class="font-medium">Output</span>
+        <span id="python-status" class="text-sm text-gray-500 ml-auto">Loading full Python in background...</span>
+      </div>
+      <div id="output" class="output-area p-4 font-mono text-sm overflow-y-auto whitespace-pre-wrap">Python Compiler Ready
+Quick mode running... full Python loading in background
+Click "Run" to execute code
+</div>
+    </div>
+  </div>
+
+  <script>
+    // Load Skulpt dynamically
+    async function loadSkulpt() {
+      return new Promise((resolve) => {
+        const script1 = document.createElement('script');
+        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js';
+        script1.onload = () => {
+          const script2 = document.createElement('script');
+          script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js';
+          script2.onload = resolve;
+          document.head.appendChild(script2);
+        };
+        document.head.appendChild(script1);
+      });
+    }
+    let pyodideReady = false;
+    let pyodide;
+    let skulptReady = false;
+
+    // Elements
+    const editor = document.getElementById('editor');
+    const output = document.getElementById('output');
+    const runBtn = document.getElementById('run-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const installBtn = document.getElementById('install-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const infoBtn = document.getElementById('info-btn');
+    const modeStatus = document.getElementById('mode-status');
+    const pythonStatus = document.getElementById('python-status');
+
+    // Theme setup
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.className = theme;
+    
+    const icons = {
+      light: '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>',
+      dark: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+    };
+    
+    document.getElementById('theme-icon').innerHTML = icons[theme];
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.className = newTheme;
+      localStorage.setItem('theme', newTheme);
+      document.getElementById('theme-icon').innerHTML = icons[newTheme];
+    });
+
+    // Setup Skulpt after loading
+    async function setupSkulpt() {
+      await loadSkulpt();
+      
+      if (typeof Sk !== 'undefined') {
+        Sk.configure({
+          output: function(text) {
+            output.textContent += text;
+          },
+          read: function(x) {
+            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+              throw "File not found: '" + x + "'";
+            return Sk.builtinFiles["files"][x];
+          }
+        });
+        skulptReady = true;
+        modeStatus.textContent = 'Loading Libraries';
+        checkEngineReady();
+      } else {
+        modeStatus.textContent = 'Quick mode failed';
+      }
+    }
+
+    // Load Pyodide in background
+    async function initPyodideInBackground() {
+      try {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+        document.head.appendChild(script);
+        
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+        
+        pyodide = await window.loadPyodide({
+          packages: [] // Minimal load
+        });
+        
+        pyodideReady = true;
+        modeStatus.textContent = 'Full Python ready';
+        modeStatus.className = 'text-sm text-green-600 dark:text-green-400 ml-auto';
+        pythonStatus.textContent = 'Full Python loaded! All libraries now supported.';
+        installBtn.disabled = false;
+        checkEngineReady();
+        
+        // Setup output capture for Pyodide
+        pyodide.runPython(`
+import sys
+import io
+
+_stdout_buffer = io.StringIO()
+_stderr_buffer = io.StringIO()
+
+def capture_output():
+    sys.stdout = _stdout_buffer
+    sys.stderr = _stderr_buffer
+
+def get_output():
+    stdout_content = _stdout_buffer.getvalue()
+    stderr_content = _stderr_buffer.getvalue()
+    _stdout_buffer.seek(0)
+    _stdout_buffer.truncate(0)
+    _stderr_buffer.seek(0)
+    _stderr_buffer.truncate(0)
+    return stdout_content, stderr_content
+
+def reset_output():
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+        `);
+        
+      } catch (error) {
+        pythonStatus.textContent = 'Full Python failed to load. Using quick mode.';
+        modeStatus.textContent = 'Quick mode only';
+      }
+    }
+
+    // Initialize immediately
+    setupSkulpt();
+    initPyodideInBackground();
+
+    // Auto-save
+    editor.addEventListener('input', () => {
+      localStorage.setItem('python_code', editor.value);
+    });
+
+    // Smart indentation for Python
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const lines = editor.value.substring(0, editor.selectionStart).split('\n');
+        const currentLine = lines[lines.length - 1];
+        
+        // Get current indentation
+        const indent = currentLine.match(/^\s*/)[0];
+        
+        // Add extra indent after colon
+        const needsIndent = currentLine.trim().endsWith(':');
+        const newIndent = needsIndent ? indent + '    ' : indent;
+        
+        // Insert newline with proper indentation
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const value = editor.value;
+        
+        editor.value = value.substring(0, start) + '\n' + newIndent + value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 1 + newIndent.length;
+      }
+      
+      // Tab key for indentation
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        
+        if (e.shiftKey) {
+          // Shift+Tab: Remove indentation
+          const lines = editor.value.split('\n');
+          const startLine = editor.value.substring(0, start).split('\n').length - 1;
+          const endLine = editor.value.substring(0, end).split('\n').length - 1;
+          
+          for (let i = startLine; i <= endLine; i++) {
+            if (lines[i].startsWith('    ')) {
+              lines[i] = lines[i].substring(4);
+            } else if (lines[i].startsWith('\t')) {
+              lines[i] = lines[i].substring(1);
+            }
+          }
+          
+          editor.value = lines.join('\n');
+        } else {
+          // Tab: Add indentation
+          editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+          editor.selectionStart = editor.selectionEnd = start + 4;
+        }
+      }
+      
+      // Backspace: Smart indentation removal
+      if (e.key === 'Backspace') {
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        
+        // Only handle if no selection and cursor is after spaces
+        if (start === end && start >= 4) {
+          const beforeCursor = editor.value.substring(start - 4, start);
+          
+          // If the 4 characters before cursor are spaces, remove all 4
+          if (beforeCursor === '    ') {
+            e.preventDefault();
+            editor.value = editor.value.substring(0, start - 4) + editor.value.substring(start);
+            editor.selectionStart = editor.selectionEnd = start - 4;
+          }
+        }
+      }
+    });
+
+    // Load saved code
+    const saved = localStorage.getItem('python_code');
+    if (saved) editor.value = saved;
+
+    // Clear output
+    clearBtn.addEventListener('click', () => {
+      output.textContent = 'Output cleared\n\n';
+    });
+
+    // Install libraries
+    installBtn.addEventListener('click', async () => {
+      if (!pyodideReady) {
+        output.textContent += 'Full Python not ready yet...\n';
+        return;
+      }
+      
+      const packages = prompt('Enter package names (comma-separated):\nAvailable: numpy, matplotlib, pandas, scipy, sympy, pillow', 'numpy');
+      if (!packages) return;
+      
+      const packageList = packages.split(',').map(p => p.trim());
+      
+      installBtn.disabled = true;
+      installBtn.textContent = '⏳ Installing...';
+      
+      try {
+        await pyodide.loadPackage(packageList);
+        output.textContent += `✓ Installed: ${packageList.join(', ')}\n`;
+      } catch (err) {
+        output.textContent += `✗ Install failed: ${err.message}\n`;
+      }
+      
+      installBtn.disabled = false;
+      installBtn.textContent = '📦 Install Libs';
+    });
+
+    // Copy code functionality
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(editor.value).then(() => {
+        copyBtn.textContent = '✓';
+        setTimeout(() => copyBtn.textContent = '📋', 1000);
+      }).catch(() => {
+        // Fallback for older browsers
+        editor.select();
+        document.execCommand('copy');
+        copyBtn.textContent = '✓';
+        setTimeout(() => copyBtn.textContent = '📋', 1000);
+      });
+    });
+
+    // Info modal functionality
+    infoBtn.addEventListener('click', () => {
+      alert(`Python Compiler Shortcuts & Features:
+
+📝 EDITOR:
+✅ Tab - Add 4 spaces (Python standard)
+✅ Shift+Tab - Remove indentation
+✅ Auto-indent after colon (:)
+✅ Ctrl+Enter - Run code
+✅ Ctrl+F - Find in browser page
+✅ Ctrl+C - Copy selected text
+✅ Ctrl+V - Paste text
+✅ Ctrl+Z - Undo
+✅ Ctrl+Y - Redo
+
+🐍 PYTHON:
+✅ Quick mode (Skulpt) - Instant execution
+✅ Full mode (Pyodide) - All libraries
+✅ Auto-save - Code saved automatically
+✅ Install packages - numpy, pandas, etc.
+
+💡 TIP: Start typing immediately, Python loads in background!`);
+    });
+
+    // Run code
+    async function runCode() {
+      const code = editor.value.trim();
+      if (!code) return;
+      
+      if (!skulptReady && !pyodideReady) {
+        output.textContent += 'Python not ready yet...\n';
+        return;
+      }
+      
+      runBtn.disabled = true;
+      runBtn.textContent = '⏳ Running...';
+      
+      try {
+        if (pyodideReady) {
+          // Full Python mode with Pyodide
+          pyodide.runPython('capture_output()');
+          
+          const result = await pyodide.runPythonAsync(code);
+          
+          const [stdout, stderr] = pyodide.runPython('get_output()');
+          pyodide.runPython('reset_output()');
+          
+          if (stdout) output.textContent += stdout;
+          if (stderr) output.textContent += `Error: ${stderr}`;
+          if (result !== undefined && result !== null && String(result) !== 'None') {
+            output.textContent += result + '\\n';
+          }
+          
+        } else if (skulptReady) {
+          // Quick mode with Skulpt
+          await Sk.misceval.asyncToPromise(() => {
+            return Sk.importMainWithBody("<stdin>", false, code, true);
+          });
+        }
+        
+      } catch (err) {
+        output.textContent += `Error: ${err.toString()}\n`;
+      }
+      
+      output.textContent += '\n\n[Execution Finished]\n';
+      output.scrollTop = output.scrollHeight;
+      
+      runBtn.disabled = false;
+      runBtn.textContent = '▶ Run';
+    }
+
+    runBtn.addEventListener('click', runCode);
+    
+    // Enable run button when either engine is ready
+    function checkEngineReady() {
+      if (skulptReady || pyodideReady) {
+        runBtn.disabled = false;
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runCode();
+      }
+
+    });
+  </script>
+</body>
+</html>

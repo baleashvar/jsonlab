@@ -18,7 +18,8 @@ export default defineConfig({
         jsoncsv: 'tools/json-csv/index.html',
         jsondiff: 'tools/json-diff/index.html',
         jwt: 'tools/jwt-decoder/index.html',
-        hash: 'tools/hash-generator/index.html'
+        hash: 'tools/hash-generator/index.html',
+        python: 'tools/python/index.html'
       }
     },
     minify: 'terser',
