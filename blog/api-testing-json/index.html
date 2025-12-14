@@ -184,33 +184,33 @@ validate_user_response(user_data)</code></pre>
     Comprehensive API response validation
     """
     # Check status code
-    if not 200 <= response.status_code < 300:
-        raise AssertionError(f"Unexpected status code: {response.status_code}")
+    if not 200 &lt;= response.status_code &lt; 300:
+        raise AssertionError(f&quot;Unexpected status code: {response.status_code}&quot;)
     
     # Check content type
     content_type = response.headers.get('content-type', '')
     if 'application/json' not in content_type:
-        raise AssertionError(f"Expected JSON, got: {content_type}")
+        raise AssertionError(f&quot;Expected JSON, got: {content_type}&quot;)
     
     # Parse JSON
     try:
         data = response.json()
     except ValueError as e:
-        raise AssertionError(f"Invalid JSON response: {e}")
+        raise AssertionError(f&quot;Invalid JSON response: {e}&quot;)
     
     # Validate fields
     if expected_fields:
         missing_fields = set(expected_fields) - set(data.keys())
         if missing_fields:
-            raise AssertionError(f"Missing fields: {missing_fields}")
+            raise AssertionError(f&quot;Missing fields: {missing_fields}&quot;)
     
     # Validate types
     if expected_types:
         for field, expected_type in expected_types.items():
             if field in data and not isinstance(data[field], expected_type):
                 raise AssertionError(
-                    f"Field '{field}' should be {expected_type.__name__}, "
-                    f"got {type(data[field]).__name__}"
+                    f&quot;Field '{field}' should be {expected_type.__name__}, &quot;
+                    f&quot;got {type(data[field]).__name__}&quot;
                 )
     
     return data
@@ -270,11 +270,11 @@ def test_response_time():
     response_time = end_time - start_time
     
     # Assert response time is under 2 seconds
-    assert response_time < 2.0, f"Response too slow: {response_time:.2f}s"
+    assert response_time &lt; 2.0, f&quot;Response too slow: {response_time:.2f}s&quot;
     
     # Check response size
     content_length = len(response.content)
-    assert content_length < 1024 * 1024, f"Response too large: {content_length} bytes"</code></pre>
+    assert content_length &lt; 1024 * 1024, f&quot;Response too large: {content_length} bytes&quot;</code></pre>
 
       <h2>Automated Testing with pytest</h2>
       
