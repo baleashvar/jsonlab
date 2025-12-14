@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python JSON Parsing: Complete Guide with Examples | JSONLab</title>
+  <meta name="description" content="Master JSON handling in Python with json.loads(), json.dumps(), error handling, and real-world examples. Complete tutorial for beginners and experts.">
+  <link rel="canonical" href="https://jsonlab.xyz/blog/python-json-parsing/">
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body>
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <span class="text-xl font-bold">JSONLab</span>
+      </a>
+      <a href="/blog/" class="text-blue-600 hover:underline">← Back to Blog</a>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <article class="prose dark:prose-invert max-w-none">
+      <h1>Python JSON Parsing: Complete Guide with Examples</h1>
+      
+      <p>JSON is everywhere in modern Python development. Whether you're building APIs, processing data, or working with configuration files, you'll need to master JSON handling. This guide covers everything from basics to advanced techniques.</p>
+
+      <h2>Quick Start: The json Module</h2>
+      
+      <p>Python's built-in <code>json</code> module handles all JSON operations:</p>
+
+      <pre><code>import json
+
+# Parse JSON string to Python object
+json_string = '{"name": "Alice", "age": 30}'
+data = json.loads(json_string)
+print(data["name"])  # Output: Alice
+
+# Convert Python object to JSON string
+python_dict = {"name": "Bob", "age": 25}
+json_string = json.dumps(python_dict)
+print(json_string)  # Output: {"name": "Bob", "age": 25}</code></pre>
+
+      <h2>Core Functions</h2>
+
+      <h3>json.loads() - Parse JSON String</h3>
+      <pre><code>import json
+
+# Basic parsing
+data = json.loads('{"users": [{"id": 1, "name": "John"}]}')
+print(data["users"][0]["name"])  # John
+
+# Handle different data types
+json_data = '''
+{
+  "string": "hello",
+  "number": 42,
+  "float": 3.14,
+  "boolean": true,
+  "null_value": null,
+  "array": [1, 2, 3],
+  "object": {"nested": "value"}
+}
+'''
+parsed = json.loads(json_data)
+print(type(parsed["boolean"]))  # &lt;class 'bool'&gt;</code></pre>
+
+      <h3>json.dumps() - Convert to JSON String</h3>
+      <pre><code>import json
+
+data = {
+    "name": "Alice",
+    "skills": ["Python", "JavaScript"],
+    "active": True,
+    "score": None
+}
+
+# Basic conversion
+json_string = json.dumps(data)
+print(json_string)
+
+# Pretty printing with indentation
+pretty_json = json.dumps(data, indent=2)
+print(pretty_json)
+
+# Sort keys alphabetically
+sorted_json = json.dumps(data, sort_keys=True, indent=2)</code></pre>
+
+      <h2>Working with Files</h2>
+
+      <h3>Reading JSON Files</h3>
+      <pre><code>import json
+
+# Method 1: Using json.load()
+with open('data.json', 'r') as file:
+    data = json.load(file)
+    print(data)
+
+# Method 2: Read then parse
+with open('data.json', 'r') as file:
+    content = file.read()
+    data = json.loads(content)</code></pre>
+
+      <h3>Writing JSON Files</h3>
+      <pre><code>import json
+
+data = {
+    "users": [
+        {"id": 1, "name": "Alice", "email": "alice@example.com"},
+        {"id": 2, "name": "Bob", "email": "bob@example.com"}
+    ]
+}
+
+# Method 1: Using json.dump()
+with open('output.json', 'w') as file:
+    json.dump(data, file, indent=2)
+
+# Method 2: Convert then write
+with open('output.json', 'w') as file:
+    json_string = json.dumps(data, indent=2)
+    file.write(json_string)</code></pre>
+
+      <h2>Error Handling</h2>
+
+      <p>Always handle JSON parsing errors gracefully:</p>
+
+      <pre><code>import json
+
+def safe_json_parse(json_string):
+    try:
+        return json.loads(json_string)
+    except json.JSONDecodeError as e:
+        print(f"JSON parsing error: {e}")
+        return None
+
+# Test with invalid JSON
+invalid_json = '{"name": "Alice", "age":}'  # Missing value
+result = safe_json_parse(invalid_json)
+
+# More specific error handling
+def parse_with_details(json_string):
+    try:
+        return json.loads(json_string)
+    except json.JSONDecodeError as e:
+        print(f"Error at line {e.lineno}, column {e.colno}")
+        print(f"Error message: {e.msg}")
+        return None</code></pre>
+
+      <h2>Advanced Techniques</h2>
+
+      <h3>Custom JSON Encoder</h3>
+      <pre><code>import json
+from datetime import datetime
+
+class DateTimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+
+data = {
+    "name": "Alice",
+    "created_at": datetime.now()
+}
+
+# Use custom encoder
+json_string = json.dumps(data, cls=DateTimeEncoder, indent=2)
+print(json_string)</code></pre>
+
+      <h3>Custom JSON Decoder</h3>
+      <pre><code>import json
+from datetime import datetime
+
+def datetime_parser(dct):
+    for key, value in dct.items():
+        if key.endswith('_at') and isinstance(value, str):
+            try:
+                dct[key] = datetime.fromisoformat(value)
+            except ValueError:
+                pass
+    return dct
+
+json_string = '{"name": "Alice", "created_at": "2024-01-15T10:30:00"}'
+data = json.loads(json_string, object_hook=datetime_parser)
+print(type(data["created_at"]))  # &lt;class 'datetime.datetime'&gt;</code></pre>
+
+      <h2>Working with APIs</h2>
+
+      <h3>Fetching and Parsing API Data</h3>
+      <pre><code>import json
+import urllib.request
+
+def fetch_json_data(url):
+    try:
+        with urllib.request.urlopen(url) as response:
+            data = json.loads(response.read().decode())
+            return data
+    except Exception as e:
+        print(f"Error fetching data: {e}")
+        return None
+
+# Example usage
+# data = fetch_json_data('https://api.example.com/users')
+
+# Using requests library (recommended)
+import requests
+
+def fetch_with_requests(url):
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raise exception for bad status codes
+        return response.json()  # Automatically parses JSON
+    except requests.exceptions.RequestException as e:
+        print(f"Request error: {e}")
+        return None</code></pre>
+
+      <h2>Performance Tips</h2>
+
+      <h3>Large JSON Files</h3>
+      <pre><code>import json
+
+# For large files, consider streaming
+def process_large_json(filename):
+    with open(filename, 'r') as file:
+        # Load in chunks or use ijson for streaming
+        data = json.load(file)
+        
+        # Process data in batches
+        if isinstance(data, list):
+            batch_size = 1000
+            for i in range(0, len(data), batch_size):
+                batch = data[i:i + batch_size]
+                # Process batch
+                yield batch
+
+# Memory-efficient processing
+for batch in process_large_json('large_data.json'):
+    # Process each batch
+    pass</code></pre>
+
+      <h2>Common Pitfalls</h2>
+
+      <h3>1. Trailing Commas</h3>
+      <pre><code># Invalid JSON (trailing comma)
+invalid = '{"name": "Alice", "age": 30,}'
+
+# Valid JSON
+valid = '{"name": "Alice", "age": 30}'</code></pre>
+
+      <h3>2. Single Quotes</h3>
+      <pre><code># Invalid JSON (single quotes)
+invalid = "{'name': 'Alice'}"
+
+# Valid JSON (double quotes)
+valid = '{"name": "Alice"}'</code></pre>
+
+      <h3>3. Python None vs JSON null</h3>
+      <pre><code>import json
+
+data = {"value": None}
+json_string = json.dumps(data)
+print(json_string)  # {"value": null}
+
+parsed = json.loads(json_string)
+print(parsed["value"] is None)  # True</code></pre>
+
+      <h2>Try It Online</h2>
+      
+      <p>Want to test JSON parsing without setting up Python? Use our online tools:</p>
+      <ul>
+        <li><a href="/tools/python/" class="text-blue-600 hover:underline">Python Compiler Online</a> - Run Python code with JSON in your browser</li>
+        <li><a href="/tools/formatter/" class="text-blue-600 hover:underline">JSON Formatter</a> - Format and validate JSON</li>
+        <li><a href="/tools/validator/" class="text-blue-600 hover:underline">JSON Validator</a> - Check JSON syntax</li>
+      </ul>
+
+      <h2>Best Practices</h2>
+
+      <ul>
+        <li><strong>Always handle exceptions</strong> when parsing JSON</li>
+        <li><strong>Validate data structure</strong> after parsing</li>
+        <li><strong>Use appropriate encoding</strong> (UTF-8) for file operations</li>
+        <li><strong>Consider memory usage</strong> for large JSON files</li>
+        <li><strong>Use type hints</strong> for better code documentation</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      
+      <p>Python's json module provides everything you need for JSON handling. Start with the basics (loads/dumps), add proper error handling, and gradually incorporate advanced techniques as needed. Practice with real-world APIs and data to build confidence.</p>
+    </article>
+  </main>
+</body>
+</html>

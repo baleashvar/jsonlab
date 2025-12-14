@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Testing with JSON: Tools and Techniques | JSONLab</title>
+  <meta name="description" content="Complete guide to testing REST APIs with JSON. Learn validation, tools like Postman, curl, Python requests, and best practices for API testing.">
+  <link rel="canonical" href="https://jsonlab.xyz/blog/api-testing-json/">
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body>
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <span class="text-xl font-bold">JSONLab</span>
+      </a>
+      <a href="/blog/" class="text-blue-600 hover:underline">← Back to Blog</a>
+    </nav>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <article class="prose dark:prose-invert max-w-none">
+      <h1>API Testing with JSON: Tools and Techniques</h1>
+      
+      <p>Testing REST APIs is crucial for reliable applications. Since most modern APIs use JSON for data exchange, mastering JSON validation and testing techniques is essential. This guide covers everything from basic validation to advanced testing strategies.</p>
+
+      <h2>Why JSON API Testing Matters</h2>
+      
+      <ul>
+        <li><strong>Data Integrity</strong> - Ensure correct data format and structure</li>
+        <li><strong>Error Handling</strong> - Validate error responses and status codes</li>
+        <li><strong>Performance</strong> - Check response times and payload sizes</li>
+        <li><strong>Security</strong> - Test for injection attacks and data leaks</li>
+      </ul>
+
+      <h2>Essential Testing Tools</h2>
+
+      <h3>1. curl - Command Line Testing</h3>
+      
+      <p>curl is perfect for quick API tests and automation:</p>
+
+      <pre><code># GET request
+curl -X GET "https://api.example.com/users" \
+  -H "Accept: application/json"
+
+# POST request with JSON data
+curl -X POST "https://api.example.com/users" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com"
+  }'
+
+# Pretty print JSON response
+curl -s "https://api.example.com/users" | python -m json.tool
+
+# Save response to file
+curl "https://api.example.com/users" -o response.json</code></pre>
+
+      <h3>2. Postman - GUI Testing</h3>
+      
+      <p>Postman provides a user-friendly interface for API testing:</p>
+
+      <ul>
+        <li><strong>Collections</strong> - Organize related API tests</li>
+        <li><strong>Environment Variables</strong> - Manage different environments</li>
+        <li><strong>Pre-request Scripts</strong> - Set up test data</li>
+        <li><strong>Tests</strong> - Validate responses automatically</li>
+      </ul>
+
+      <h4>Postman Test Script Example:</h4>
+      <pre><code>// Test status code
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+// Test JSON structure
+pm.test("Response has required fields", function () {
+    const jsonData = pm.response.json();
+    pm.expect(jsonData).to.have.property('id');
+    pm.expect(jsonData).to.have.property('name');
+    pm.expect(jsonData).to.have.property('email');
+});
+
+// Test data types
+pm.test("ID is a number", function () {
+    const jsonData = pm.response.json();
+    pm.expect(jsonData.id).to.be.a('number');
+});</code></pre>
+
+      <h3>3. Python requests - Programmatic Testing</h3>
+      
+      <p>Python requests library is excellent for automated testing:</p>
+
+      <pre><code>import requests
+import json
+
+def test_api_endpoint():
+    # Test GET request
+    response = requests.get('https://api.example.com/users/1')
+    
+    # Basic assertions
+    assert response.status_code == 200
+    assert response.headers['content-type'] == 'application/json'
+    
+    # Parse JSON response
+    data = response.json()
+    
+    # Validate JSON structure
+    required_fields = ['id', 'name', 'email']
+    for field in required_fields:
+        assert field in data, f"Missing required field: {field}"
+    
+    # Validate data types
+    assert isinstance(data['id'], int)
+    assert isinstance(data['name'], str)
+    assert isinstance(data['email'], str)
+    
+    return data
+
+# Test POST request
+def test_create_user():
+    user_data = {
+        "name": "Alice Smith",
+        "email": "alice@example.com"
+    }
+    
+    response = requests.post(
+        'https://api.example.com/users',
+        json=user_data,
+        headers={'Content-Type': 'application/json'}
+    )
+    
+    assert response.status_code == 201
+    created_user = response.json()
+    
+    # Validate created user
+    assert created_user['name'] == user_data['name']
+    assert created_user['email'] == user_data['email']
+    assert 'id' in created_user
+    
+    return created_user</code></pre>
+
+      <h2>JSON Validation Techniques</h2>
+
+      <h3>1. Schema Validation</h3>
+      
+      <p>Use JSON Schema to validate response structure:</p>
+
+      <pre><code>import jsonschema
+import requests
+
+# Define expected schema
+user_schema = {
+    "type": "object",
+    "properties": {
+        "id": {"type": "integer"},
+        "name": {"type": "string", "minLength": 1},
+        "email": {"type": "string", "format": "email"},
+        "age": {"type": "integer", "minimum": 0},
+        "active": {"type": "boolean"}
+    },
+    "required": ["id", "name", "email"]
+}
+
+def validate_user_response(response_data):
+    try:
+        jsonschema.validate(response_data, user_schema)
+        print("✅ JSON schema validation passed")
+        return True
+    except jsonschema.ValidationError as e:
+        print(f"❌ Schema validation failed: {e.message}")
+        return False
+
+# Test with API response
+response = requests.get('https://api.example.com/users/1')
+user_data = response.json()
+validate_user_response(user_data)</code></pre>
+
+      <h3>2. Custom Validation Functions</h3>
+      
+      <pre><code>def validate_api_response(response, expected_fields=None, expected_types=None):
+    """
+    Comprehensive API response validation
+    """
+    # Check status code
+    if not 200 <= response.status_code < 300:
+        raise AssertionError(f"Unexpected status code: {response.status_code}")
+    
+    # Check content type
+    content_type = response.headers.get('content-type', '')
+    if 'application/json' not in content_type:
+        raise AssertionError(f"Expected JSON, got: {content_type}")
+    
+    # Parse JSON
+    try:
+        data = response.json()
+    except ValueError as e:
+        raise AssertionError(f"Invalid JSON response: {e}")
+    
+    # Validate fields
+    if expected_fields:
+        missing_fields = set(expected_fields) - set(data.keys())
+        if missing_fields:
+            raise AssertionError(f"Missing fields: {missing_fields}")
+    
+    # Validate types
+    if expected_types:
+        for field, expected_type in expected_types.items():
+            if field in data and not isinstance(data[field], expected_type):
+                raise AssertionError(
+                    f"Field '{field}' should be {expected_type.__name__}, "
+                    f"got {type(data[field]).__name__}"
+                )
+    
+    return data
+
+# Usage example
+response = requests.get('https://api.example.com/users/1')
+user_data = validate_api_response(
+    response,
+    expected_fields=['id', 'name', 'email'],
+    expected_types={'id': int, 'name': str, 'email': str}
+)</code></pre>
+
+      <h2>Testing Different Scenarios</h2>
+
+      <h3>1. Error Response Testing</h3>
+      
+      <pre><code>def test_error_responses():
+    # Test 404 - Not Found
+    response = requests.get('https://api.example.com/users/99999')
+    assert response.status_code == 404
+    
+    error_data = response.json()
+    assert 'error' in error_data
+    assert 'message' in error_data
+    
+    # Test 400 - Bad Request
+    invalid_data = {"email": "invalid-email"}
+    response = requests.post(
+        'https://api.example.com/users',
+        json=invalid_data
+    )
+    assert response.status_code == 400
+    
+    error_data = response.json()
+    assert 'validation_errors' in error_data
+
+# Test authentication errors
+def test_auth_errors():
+    # Test without token
+    response = requests.get('https://api.example.com/protected')
+    assert response.status_code == 401
+    
+    # Test with invalid token
+    headers = {'Authorization': 'Bearer invalid-token'}
+    response = requests.get('https://api.example.com/protected', headers=headers)
+    assert response.status_code == 401</code></pre>
+
+      <h3>2. Performance Testing</h3>
+      
+      <pre><code>import time
+
+def test_response_time():
+    start_time = time.time()
+    response = requests.get('https://api.example.com/users')
+    end_time = time.time()
+    
+    response_time = end_time - start_time
+    
+    # Assert response time is under 2 seconds
+    assert response_time < 2.0, f"Response too slow: {response_time:.2f}s"
+    
+    # Check response size
+    content_length = len(response.content)
+    assert content_length < 1024 * 1024, f"Response too large: {content_length} bytes"</code></pre>
+
+      <h2>Automated Testing with pytest</h2>
+      
+      <pre><code>import pytest
+import requests
+
+class TestUserAPI:
+    base_url = "https://api.example.com"
+    
+    def test_get_users(self):
+        response = requests.get(f"{self.base_url}/users")
+        assert response.status_code == 200
+        
+        users = response.json()
+        assert isinstance(users, list)
+        
+        if users:  # If users exist
+            user = users[0]
+            assert 'id' in user
+            assert 'name' in user
+            assert 'email' in user
+    
+    def test_create_user(self):
+        user_data = {
+            "name": "Test User",
+            "email": "test@example.com"
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/users",
+            json=user_data
+        )
+        assert response.status_code == 201
+        
+        created_user = response.json()
+        assert created_user['name'] == user_data['name']
+        assert created_user['email'] == user_data['email']
+    
+    @pytest.mark.parametrize("invalid_email", [
+        "invalid-email",
+        "@example.com",
+        "test@",
+        ""
+    ])
+    def test_invalid_email_validation(self, invalid_email):
+        user_data = {
+            "name": "Test User",
+            "email": invalid_email
+        }
+        
+        response = requests.post(
+            f"{self.base_url}/users",
+            json=user_data
+        )
+        assert response.status_code == 400</code></pre>
+
+      <h2>JSON Testing Best Practices</h2>
+
+      <h3>1. Validate Response Structure</h3>
+      <ul>
+        <li>Check required fields are present</li>
+        <li>Validate data types</li>
+        <li>Test nested objects and arrays</li>
+        <li>Verify field constraints (min/max values)</li>
+      </ul>
+
+      <h3>2. Test Edge Cases</h3>
+      <ul>
+        <li>Empty responses</li>
+        <li>Large payloads</li>
+        <li>Special characters in strings</li>
+        <li>Null values</li>
+        <li>Unicode content</li>
+      </ul>
+
+      <h3>3. Security Testing</h3>
+      <ul>
+        <li>Test for SQL injection in JSON fields</li>
+        <li>Validate input sanitization</li>
+        <li>Check for sensitive data exposure</li>
+        <li>Test authentication and authorization</li>
+      </ul>
+
+      <h2>Online JSON Testing Tools</h2>
+      
+      <p>For quick JSON validation and testing, use these online tools:</p>
+      <ul>
+        <li><a href="/tools/validator/" class="text-blue-600 hover:underline">JSON Validator</a> - Validate JSON syntax</li>
+        <li><a href="/tools/formatter/" class="text-blue-600 hover:underline">JSON Formatter</a> - Format and beautify JSON</li>
+        <li><a href="/tools/json-diff/" class="text-blue-600 hover:underline">JSON Diff</a> - Compare API responses</li>
+        <li><a href="/tools/python/" class="text-blue-600 hover:underline">Python Compiler</a> - Test JSON parsing code</li>
+      </ul>
+
+      <h2>Conclusion</h2>
+      
+      <p>Effective API testing with JSON requires a combination of tools, techniques, and best practices. Start with basic validation, add schema checking, and gradually build comprehensive test suites. Remember to test both success and error scenarios, and always validate the JSON structure and data types.</p>
+
+      <p>Regular API testing ensures your applications remain reliable, secure, and performant as they evolve.</p>
+    </article>
+  </main>
+</body>
+</html>
