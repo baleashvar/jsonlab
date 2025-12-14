@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+Allow: /blog/
+Allow: /blog/json-vs-yaml/
+Allow: /blog/python-json-parsing/
+Allow: /blog/api-testing-json/
 
 Sitemap: https://jsonlab.xyz/sitemap.xml

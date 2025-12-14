@@ -19,7 +19,11 @@ export default defineConfig({
         jsondiff: 'tools/json-diff/index.html',
         jwt: 'tools/jwt-decoder/index.html',
         hash: 'tools/hash-generator/index.html',
-        python: 'tools/python/index.html'
+        python: 'tools/python/index.html',
+        blog: 'blog/index.html',
+        jsonvsyaml: 'blog/json-vs-yaml/index.html',
+        pythonjson: 'blog/python-json-parsing/index.html',
+        apitesting: 'blog/api-testing-json/index.html'
       }
     },
     minify: 'terser',
