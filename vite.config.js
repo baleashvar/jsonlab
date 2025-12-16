@@ -23,7 +23,11 @@ export default defineConfig({
         blog: 'blog/index.html',
         jsonvsyaml: 'blog/json-vs-yaml/index.html',
         pythonjson: 'blog/python-json-parsing/index.html',
-        apitesting: 'blog/api-testing-json/index.html'
+        apitesting: 'blog/api-testing-json/index.html',
+        aitools: 'ai-tools/index.html',
+        tokencalc: 'ai-tools/token-calculator/index.html',
+        vectorsim: 'ai-tools/vector-similarity/index.html',
+        ragchunking: 'ai-tools/rag-chunking/index.html'
       }
     },
     minify: 'terser',

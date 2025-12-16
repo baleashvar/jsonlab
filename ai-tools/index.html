@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Developer Tools - Token Calculator, Vector Similarity & More | JSONLab</title>
+  <meta name="description" content="Free AI developer tools: OpenAI token calculator, embedding cost estimator, vector similarity calculator, RAG chunking tools. Privacy-first, runs in browser.">
+  <link rel="canonical" href="https://jsonlab.xyz/ai-tools/">
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body>
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+        <span class="text-xl font-bold">JSONLab</span>
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">JSON Tools</a>
+        <a href="/blog/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">Blog</a>
+        <div class="relative">
+          <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Toggle theme">
+            <svg id="theme-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+          </button>
+          <div id="theme-menu" class="hidden absolute right-0 mt-2 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
+            <button data-theme="light" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">Light</button>
+            <button data-theme="dark" class="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-sm">Dark</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-12">
+    <section class="text-center mb-16">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-4">AI Developer Tools</h1>
+      <p class="text-xl text-gray-600 mb-2">Calculate costs, optimize embeddings, and build better AI apps</p>
+      <p class="text-sm text-gray-500">Privacy-first tools that run entirely in your browser</p>
+    </section>
+
+    <section class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-16">
+      <a href="/ai-tools/token-calculator/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition border-2 border-blue-200 dark:border-blue-800">
+        <h2 class="text-xl font-bold mb-1">🔢 Token Calculator</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Calculate OpenAI API costs and token usage for GPT models</p>
+      </a>
+      
+      <a href="/ai-tools/vector-similarity/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition border-2 border-green-200 dark:border-green-800">
+        <h2 class="text-xl font-bold mb-1">📊 Vector Similarity</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Compare embeddings with cosine similarity and distance metrics</p>
+      </a>
+
+      <a href="/ai-tools/rag-chunking/" class="block p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition border-2 border-purple-200 dark:border-purple-800">
+        <h2 class="text-xl font-bold mb-1">🧩 RAG Chunking</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-300">Optimize text splitting for vector databases and embeddings</p>
+      </a>
+    </section>
+
+    <section class="bg-blue-50 dark:bg-gray-800/50 rounded-lg p-8 text-center">
+      <h2 class="text-2xl font-bold mb-4">Why AI Developers Choose JSONLab</h2>
+      <div class="grid sm:grid-cols-3 gap-6 text-left">
+        <div>
+          <h3 class="font-bold mb-2">💰 Cost Optimization</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Calculate exact API costs before deployment</p>
+        </div>
+        <div>
+          <h3 class="font-bold mb-2">🔒 Privacy First</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">All calculations happen locally in your browser</p>
+        </div>
+        <div>
+          <h3 class="font-bold mb-2">⚡ Instant Results</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">No API calls needed - works offline</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    const moonIcon = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.className = theme;
+    document.getElementById('theme-icon').innerHTML = moonIcon;
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.getElementById('theme-menu').classList.toggle('hidden');
+    });
+    
+    document.querySelectorAll('[data-theme]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newTheme = btn.dataset.theme;
+        document.documentElement.className = newTheme;
+        localStorage.setItem('theme', newTheme);
+        document.getElementById('theme-icon').innerHTML = moonIcon;
+        document.getElementById('theme-menu').classList.add('hidden');
+      });
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('#theme-toggle') && !e.target.closest('#theme-menu')) {
+        document.getElementById('theme-menu').classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>

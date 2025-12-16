@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG Chunking Tool - Optimize Text for Vector Databases | JSONLab</title>
+  <meta name="description" content="Free RAG chunking tool. Split text optimally for vector databases and embeddings. Token-aware chunking with overlap for better retrieval quality.">
+  <link rel="canonical" href="https://jsonlab.xyz/ai-tools/rag-chunking/">
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold">
+        <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+        JSONLab
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="/ai-tools/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">AI Tools</a>
+        <a href="/" class="text-gray-600 dark:text-gray-300 hover:text-blue-600">JSON Tools</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <h1 class="text-2xl font-bold">🧩 RAG Chunking Tool</h1>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Optimize text splitting for vector databases and embeddings</p>
+    </div>
+
+    <!-- Controls -->
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Target Model</label>
+          <select id="model-select" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+            <option value="gpt-4o">GPT-4o (128K context)</option>
+            <option value="gpt-4-turbo">GPT-4 Turbo (128K context)</option>
+            <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo (16K context)</option>
+            <option value="claude-3">Claude 3 (200K context)</option>
+            <option value="llama-3">Llama 3 (8K context)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Chunk Size (tokens)</label>
+          <input type="number" id="chunk-size" value="512" min="100" max="4000" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Overlap (tokens)</label>
+          <input type="number" id="overlap-size" value="50" min="0" max="500" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Strategy</label>
+          <select id="strategy-select" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+            <option value="fixed">Fixed Token</option>
+            <option value="structure" selected>Structure-Aware</option>
+          </select>
+        </div>
+      </div>
+      <div id="warnings" class="mt-3 text-sm"></div>
+    </div>
+
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <!-- Input -->
+      <div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-sm font-medium flex justify-between">
+          <span>Input Text</span>
+          <span id="input-stats" class="text-xs text-gray-500"></span>
+        </div>
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex gap-2">
+            <button id="sample-btn" class="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-sm hover:bg-blue-200">Sample Text</button>
+            <button id="clear-btn" class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm hover:bg-gray-200">Clear</button>
+            <label class="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm hover:bg-gray-200 cursor-pointer">
+              Upload
+              <input type="file" id="upload-btn" accept=".txt,.md,.json" class="hidden">
+            </label>
+          </div>
+        </div>
+        <textarea 
+          id="input-text" 
+          class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 resize-none focus:outline-none text-sm"
+          placeholder="Paste your text, JSON, or Markdown here...&#10;&#10;The tool will intelligently split it into chunks optimized for RAG systems."
+          spellcheck="false"
+        ></textarea>
+      </div>
+
+      <!-- Output -->
+      <div class="flex-1 flex flex-col">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-sm font-medium flex justify-between">
+          <span>Chunked Output</span>
+          <div class="flex gap-3">
+            <span id="chunk-stats" class="text-xs text-gray-500"></span>
+            <button id="download-btn" class="text-xs text-blue-600 hover:underline">Download JSON</button>
+          </div>
+        </div>
+        <div id="output-container" class="flex-1 p-4 bg-white dark:bg-gray-800 overflow-auto">
+          <div id="chunks-display" class="space-y-4"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cross-links -->
+    <div class="bg-purple-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700 p-4">
+      <div class="text-center">
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">Building a RAG system?</p>
+        <div class="flex justify-center gap-4 text-sm">
+          <a href="/ai-tools/token-calculator/" class="text-purple-600 hover:underline">Calculate embedding costs →</a>
+          <a href="/ai-tools/vector-similarity/" class="text-purple-600 hover:underline">Test similarity →</a>
+          <a href="/tools/formatter/" class="text-purple-600 hover:underline">Format JSON →</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    // Model configurations
+    const modelConfigs = {
+      'gpt-4o': { maxTokens: 128000, name: 'GPT-4o' },
+      'gpt-4-turbo': { maxTokens: 128000, name: 'GPT-4 Turbo' },
+      'gpt-3.5-turbo': { maxTokens: 16384, name: 'GPT-3.5 Turbo' },
+      'claude-3': { maxTokens: 200000, name: 'Claude 3' },
+      'llama-3': { maxTokens: 8192, name: 'Llama 3' }
+    };
+
+    // Simple tokenizer (approximation)
+    function estimateTokens(text) {
+      if (!text) return 0;
+      // More accurate approximation for different content types
+      const words = text.trim().split(/\s+/).length;
+      const chars = text.length;
+      
+      // Adjust based on content density
+      if (text.includes('{') && text.includes('}')) {
+        // JSON-like content - more tokens per character
+        return Math.ceil(chars / 3.5);
+      } else if (text.includes('#') || text.includes('*')) {
+        // Markdown content
+        return Math.ceil(chars / 4);
+      } else {
+        // Regular text
+        return Math.ceil(chars / 4.2);
+      }
+    }
+
+    // Structure-aware text splitting
+    class RAGChunker {
+      constructor(options = {}) {
+        this.chunkSize = options.chunkSize || 512;
+        this.overlap = options.overlap || 50;
+        this.strategy = options.strategy || 'structure';
+      }
+
+      // Detect content type and structure
+      detectStructure(text) {
+        const hasJSON = /^\s*[\{\[]/.test(text.trim());
+        const hasMarkdown = /^#{1,6}\s/.test(text) || /\*\*.*\*\*/.test(text);
+        const hasParagraphs = text.includes('\n\n');
+        
+        return {
+          isJSON: hasJSON,
+          isMarkdown: hasMarkdown,
+          hasParagraphs: hasParagraphs,
+          lines: text.split('\n')
+        };
+      }
+
+      // Structure-aware chunking
+      chunkStructureAware(text) {
+        const structure = this.detectStructure(text);
+        
+        if (structure.isJSON) {
+          return this.chunkJSON(text);
+        } else if (structure.isMarkdown) {
+          return this.chunkMarkdown(text);
+        } else {
+          return this.chunkText(text);
+        }
+      }
+
+      // JSON-aware chunking
+      chunkJSON(text) {
+        try {
+          const parsed = JSON.parse(text);
+          if (Array.isArray(parsed)) {
+            return this.chunkJSONArray(parsed);
+          } else {
+            return this.chunkJSONObject(parsed);
+          }
+        } catch (e) {
+          // Fallback to text chunking if JSON is invalid
+          return this.chunkText(text);
+        }
+      }
+
+      chunkJSONArray(arr) {
+        const chunks = [];
+        let currentChunk = [];
+        let currentTokens = 2; // Account for array brackets
+
+        for (const item of arr) {
+          const itemText = JSON.stringify(item, null, 2);
+          const itemTokens = estimateTokens(itemText);
+
+          if (currentTokens + itemTokens > this.chunkSize && currentChunk.length > 0) {
+            chunks.push({
+              text: JSON.stringify(currentChunk, null, 2),
+              tokens: currentTokens,
+              type: 'json-array'
+            });
+            
+            // Handle overlap for JSON arrays
+            const overlapItems = Math.max(1, Math.floor(currentChunk.length * (this.overlap / this.chunkSize)));
+            currentChunk = currentChunk.slice(-overlapItems);
+            currentTokens = estimateTokens(JSON.stringify(currentChunk, null, 2));
+          }
+
+          currentChunk.push(item);
+          currentTokens += itemTokens;
+        }
+
+        if (currentChunk.length > 0) {
+          chunks.push({
+            text: JSON.stringify(currentChunk, null, 2),
+            tokens: currentTokens,
+            type: 'json-array'
+          });
+        }
+
+        return chunks;
+      }
+
+      chunkJSONObject(obj) {
+        // For objects, chunk by key-value pairs
+        const entries = Object.entries(obj);
+        const chunks = [];
+        let currentChunk = {};
+        let currentTokens = 2; // Account for object braces
+
+        for (const [key, value] of entries) {
+          const pairText = JSON.stringify({[key]: value}, null, 2);
+          const pairTokens = estimateTokens(pairText);
+
+          if (currentTokens + pairTokens > this.chunkSize && Object.keys(currentChunk).length > 0) {
+            chunks.push({
+              text: JSON.stringify(currentChunk, null, 2),
+              tokens: currentTokens,
+              type: 'json-object'
+            });
+
+            // Simple overlap for objects - keep last few keys
+            const keys = Object.keys(currentChunk);
+            const overlapKeys = Math.max(1, Math.floor(keys.length * (this.overlap / this.chunkSize)));
+            const keepKeys = keys.slice(-overlapKeys);
+            currentChunk = {};
+            keepKeys.forEach(k => currentChunk[k] = obj[k]);
+            currentTokens = estimateTokens(JSON.stringify(currentChunk, null, 2));
+          }
+
+          currentChunk[key] = value;
+          currentTokens += pairTokens;
+        }
+
+        if (Object.keys(currentChunk).length > 0) {
+          chunks.push({
+            text: JSON.stringify(currentChunk, null, 2),
+            tokens: currentTokens,
+            type: 'json-object'
+          });
+        }
+
+        return chunks;
+      }
+
+      // Markdown-aware chunking
+      chunkMarkdown(text) {
+        const lines = text.split('\n');
+        const chunks = [];
+        let currentChunk = [];
+        let currentTokens = 0;
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const lineTokens = estimateTokens(line + '\n');
+
+          // Check if this is a heading
+          const isHeading = /^#{1,6}\s/.test(line);
+          
+          if (currentTokens + lineTokens > this.chunkSize && currentChunk.length > 0) {
+            // If we're about to exceed, and this is a heading, break here
+            if (isHeading || currentChunk.length > 0) {
+              chunks.push({
+                text: currentChunk.join('\n'),
+                tokens: currentTokens,
+                type: 'markdown'
+              });
+
+              // Overlap handling for markdown
+              const overlapLines = Math.floor(currentChunk.length * (this.overlap / this.chunkSize));
+              currentChunk = currentChunk.slice(-overlapLines);
+              currentTokens = estimateTokens(currentChunk.join('\n'));
+            }
+          }
+
+          currentChunk.push(line);
+          currentTokens += lineTokens;
+        }
+
+        if (currentChunk.length > 0) {
+          chunks.push({
+            text: currentChunk.join('\n'),
+            tokens: currentTokens,
+            type: 'markdown'
+          });
+        }
+
+        return chunks;
+      }
+
+      // Regular text chunking
+      chunkText(text) {
+        const paragraphs = text.split('\n\n').filter(p => p.trim());
+        const chunks = [];
+        let currentChunk = [];
+        let currentTokens = 0;
+
+        for (const paragraph of paragraphs) {
+          const paragraphTokens = estimateTokens(paragraph);
+
+          if (currentTokens + paragraphTokens > this.chunkSize && currentChunk.length > 0) {
+            chunks.push({
+              text: currentChunk.join('\n\n'),
+              tokens: currentTokens,
+              type: 'text'
+            });
+
+            // Overlap handling
+            const overlapParas = Math.max(1, Math.floor(currentChunk.length * (this.overlap / this.chunkSize)));
+            currentChunk = currentChunk.slice(-overlapParas);
+            currentTokens = estimateTokens(currentChunk.join('\n\n'));
+          }
+
+          currentChunk.push(paragraph);
+          currentTokens += paragraphTokens;
+        }
+
+        if (currentChunk.length > 0) {
+          chunks.push({
+            text: currentChunk.join('\n\n'),
+            tokens: currentTokens,
+            type: 'text'
+          });
+        }
+
+        return chunks;
+      }
+
+      // Fixed token chunking (fallback)
+      chunkFixed(text) {
+        const words = text.split(/\s+/);
+        const chunks = [];
+        let currentChunk = [];
+        let currentTokens = 0;
+
+        for (const word of words) {
+          const wordTokens = estimateTokens(word + ' ');
+          
+          if (currentTokens + wordTokens > this.chunkSize && currentChunk.length > 0) {
+            chunks.push({
+              text: currentChunk.join(' '),
+              tokens: currentTokens,
+              type: 'fixed'
+            });
+
+            // Overlap handling
+            const overlapWords = Math.floor(currentChunk.length * (this.overlap / this.chunkSize));
+            currentChunk = currentChunk.slice(-overlapWords);
+            currentTokens = estimateTokens(currentChunk.join(' '));
+          }
+
+          currentChunk.push(word);
+          currentTokens += wordTokens;
+        }
+
+        if (currentChunk.length > 0) {
+          chunks.push({
+            text: currentChunk.join(' '),
+            tokens: currentTokens,
+            type: 'fixed'
+          });
+        }
+
+        return chunks;
+      }
+
+      // Main chunking method
+      chunk(text) {
+        if (!text.trim()) return [];
+
+        if (this.strategy === 'structure') {
+          return this.chunkStructureAware(text);
+        } else {
+          return this.chunkFixed(text);
+        }
+      }
+    }
+
+    // UI Elements
+    const inputText = document.getElementById('input-text');
+    const modelSelect = document.getElementById('model-select');
+    const chunkSizeInput = document.getElementById('chunk-size');
+    const overlapInput = document.getElementById('overlap-size');
+    const strategySelect = document.getElementById('strategy-select');
+    const warningsDiv = document.getElementById('warnings');
+    const inputStats = document.getElementById('input-stats');
+    const chunkStats = document.getElementById('chunk-stats');
+    const chunksDisplay = document.getElementById('chunks-display');
+
+    let chunker = new RAGChunker();
+
+    // Update warnings
+    function updateWarnings() {
+      const warnings = [];
+      const chunkSize = parseInt(chunkSizeInput.value);
+      const overlap = parseInt(overlapInput.value);
+      const model = modelSelect.value;
+      const maxTokens = modelConfigs[model].maxTokens;
+
+      if (chunkSize > maxTokens * 0.8) {
+        warnings.push(`⚠️ Chunk size is ${Math.round(chunkSize/maxTokens*100)}% of model context limit`);
+      }
+      
+      if (overlap > chunkSize * 0.3) {
+        warnings.push(`⚠️ Overlap is ${Math.round(overlap/chunkSize*100)}% of chunk size (>30% may be inefficient)`);
+      }
+      
+      if (chunkSize < 200) {
+        warnings.push(`⚠️ Small chunks (<200 tokens) may lose context`);
+      }
+
+      warningsDiv.innerHTML = warnings.map(w => `<div class="text-orange-600 dark:text-orange-400">${w}</div>`).join('');
+    }
+
+    // Process text and update display
+    function processText() {
+      const text = inputText.value;
+      const chunkSize = parseInt(chunkSizeInput.value);
+      const overlap = parseInt(overlapInput.value);
+      const strategy = strategySelect.value;
+
+      // Update chunker settings
+      chunker.chunkSize = chunkSize;
+      chunker.overlap = overlap;
+      chunker.strategy = strategy;
+
+      // Update input stats
+      const totalTokens = estimateTokens(text);
+      const chars = text.length;
+      const words = text ? text.trim().split(/\s+/).length : 0;
+      inputStats.textContent = `${totalTokens} tokens, ${chars} chars, ${words} words`;
+
+      if (!text.trim()) {
+        chunksDisplay.innerHTML = '<div class="text-gray-500 text-center py-8">Enter text to see chunks</div>';
+        chunkStats.textContent = '';
+        return;
+      }
+
+      // Chunk the text
+      const chunks = chunker.chunk(text);
+      
+      // Update chunk stats
+      const totalChunks = chunks.length;
+      const avgTokens = chunks.length > 0 ? Math.round(chunks.reduce((sum, c) => sum + c.tokens, 0) / chunks.length) : 0;
+      chunkStats.textContent = `${totalChunks} chunks, ${avgTokens} avg tokens`;
+
+      // Display chunks
+      displayChunks(chunks);
+
+      // Save settings
+      localStorage.setItem('ragChunk_chunkSize', chunkSize);
+      localStorage.setItem('ragChunk_overlap', overlap);
+      localStorage.setItem('ragChunk_strategy', strategy);
+      localStorage.setItem('ragChunk_model', modelSelect.value);
+    }
+
+    // Display chunks with overlap highlighting
+    function displayChunks(chunks) {
+      if (chunks.length === 0) {
+        chunksDisplay.innerHTML = '<div class="text-gray-500 text-center py-8">No chunks generated</div>';
+        return;
+      }
+
+      const html = chunks.map((chunk, index) => {
+        const typeColor = {
+          'json-array': 'border-blue-200 dark:border-blue-800',
+          'json-object': 'border-green-200 dark:border-green-800',
+          'markdown': 'border-purple-200 dark:border-purple-800',
+          'text': 'border-gray-200 dark:border-gray-700',
+          'fixed': 'border-orange-200 dark:border-orange-800'
+        };
+
+        return `
+          <div class="border-2 ${typeColor[chunk.type] || 'border-gray-200'} rounded-lg p-4">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-sm font-medium">Chunk ${index + 1}</span>
+              <div class="flex gap-2 text-xs text-gray-500">
+                <span>${chunk.tokens} tokens</span>
+                <span>${chunk.type}</span>
+                <button onclick="copyChunk(${index})" class="text-blue-600 hover:underline">Copy</button>
+              </div>
+            </div>
+            <pre class="text-sm bg-gray-50 dark:bg-gray-700 p-3 rounded overflow-auto max-h-40 whitespace-pre-wrap">${chunk.text}</pre>
+          </div>
+        `;
+      }).join('');
+
+      chunksDisplay.innerHTML = html;
+    }
+
+    // Copy individual chunk
+    window.copyChunk = function(index) {
+      const text = inputText.value;
+      const chunks = chunker.chunk(text);
+      if (chunks[index]) {
+        navigator.clipboard.writeText(chunks[index].text);
+      }
+    };
+
+    // Download chunks as JSON
+    document.getElementById('download-btn').addEventListener('click', () => {
+      const text = inputText.value;
+      if (!text.trim()) return;
+
+      const chunks = chunker.chunk(text);
+      const output = {
+        metadata: {
+          totalChunks: chunks.length,
+          chunkSize: chunker.chunkSize,
+          overlap: chunker.overlap,
+          strategy: chunker.strategy,
+          model: modelSelect.value,
+          generatedAt: new Date().toISOString()
+        },
+        chunks: chunks.map((chunk, index) => ({
+          id: index,
+          text: chunk.text,
+          tokens: chunk.tokens,
+          type: chunk.type
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rag-chunks.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Sample text
+    document.getElementById('sample-btn').addEventListener('click', () => {
+      inputText.value = `# RAG System Documentation
+
+## Introduction
+Retrieval Augmented Generation (RAG) is a technique that combines the power of large language models with external knowledge retrieval. This approach allows AI systems to access and utilize information beyond their training data.
+
+## Key Components
+
+### 1. Document Processing
+The first step involves breaking down documents into manageable chunks. This process is crucial for:
+- Maintaining semantic coherence
+- Optimizing retrieval performance
+- Managing token limits
+
+### 2. Embedding Generation
+Each chunk is converted into a vector representation using embedding models like:
+- OpenAI's text-embedding-ada-002
+- Sentence Transformers
+- Custom domain-specific models
+
+### 3. Vector Storage
+Embeddings are stored in specialized databases:
+- Pinecone
+- Weaviate
+- Chroma
+- FAISS
+
+## Best Practices
+
+### Chunking Strategy
+- **Size**: 200-800 tokens per chunk
+- **Overlap**: 10-20% between adjacent chunks
+- **Structure**: Preserve paragraph and section boundaries
+- **Context**: Include relevant headers and metadata
+
+### Retrieval Optimization
+1. Use semantic search for initial retrieval
+2. Implement re-ranking for better relevance
+3. Consider hybrid search (semantic + keyword)
+4. Monitor and tune similarity thresholds
+
+## Implementation Example
+
+\`\`\`python
+def chunk_document(text, chunk_size=512, overlap=50):
+    chunks = []
+    start = 0
+    
+    while start < len(text):
+        end = start + chunk_size
+        chunk = text[start:end]
+        chunks.append(chunk)
+        start = end - overlap
+    
+    return chunks
+\`\`\`
+
+This approach ensures optimal performance for RAG systems while maintaining context and semantic meaning.`;
+      processText();
+    });
+
+    // Clear button
+    document.getElementById('clear-btn').addEventListener('click', () => {
+      inputText.value = '';
+      processText();
+    });
+
+    // File upload
+    document.getElementById('upload-btn').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          inputText.value = e.target.result;
+          processText();
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Event listeners
+    inputText.addEventListener('input', processText);
+    chunkSizeInput.addEventListener('input', () => {
+      updateWarnings();
+      processText();
+    });
+    overlapInput.addEventListener('input', () => {
+      updateWarnings();
+      processText();
+    });
+    strategySelect.addEventListener('change', processText);
+    modelSelect.addEventListener('change', updateWarnings);
+
+    // Load saved settings
+    const savedChunkSize = localStorage.getItem('ragChunk_chunkSize');
+    const savedOverlap = localStorage.getItem('ragChunk_overlap');
+    const savedStrategy = localStorage.getItem('ragChunk_strategy');
+    const savedModel = localStorage.getItem('ragChunk_model');
+
+    if (savedChunkSize) chunkSizeInput.value = savedChunkSize;
+    if (savedOverlap) overlapInput.value = savedOverlap;
+    if (savedStrategy) strategySelect.value = savedStrategy;
+    if (savedModel) modelSelect.value = savedModel;
+
+    // Initial setup
+    updateWarnings();
+    processText();
+  </script>
+</body>
+</html>
