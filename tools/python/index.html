@@ -1,10 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-564CXCJ8');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Free Online Python Compiler - Run Python Code Instantly | No Signup Required</title>
   <meta name="description" content="Free online Python compiler with instant execution. Run Python code in browser without signup. Supports numpy, pandas, matplotlib. Fast Python IDE alternative to Repl.it.">
+  <link rel="canonical" href="https://jsonlab.xyz/tools/python/">
+  <meta property="og:title" content="Free Python Compiler Online">
+  <meta property="og:description" content="Run Python code instantly in browser. No signup required. Supports numpy, pandas, matplotlib.">
+  <meta property="og:image" content="https://jsonlab.xyz/thumbnail.jpg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="/src/css/styles.css">
   <style>
@@ -16,6 +27,10 @@
   </style>
 </head>
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-564CXCJ8"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
   <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -56,8 +71,7 @@
         </button>
         <span id="mode-status" class="text-sm text-blue-600 dark:text-blue-400 ml-auto">Loading Libraries</span>
       </div>
-      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" 
-        placeholder="# Write your Python code here..." spellcheck="false">print("Hello, World!")
+      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false">print("Hello, World!")
 print("Welcome to Python compiler!")
 
 for i in range(5):
@@ -178,30 +192,7 @@ Click "Run" to execute Python code
         checkEngineReady();
         
         // Setup output capture for Pyodide
-        pyodide.runPython(`
-import sys
-import io
-
-_stdout_buffer = io.StringIO()
-_stderr_buffer = io.StringIO()
-
-def capture_output():
-    sys.stdout = _stdout_buffer
-    sys.stderr = _stderr_buffer
-
-def get_output():
-    stdout_content = _stdout_buffer.getvalue()
-    stderr_content = _stderr_buffer.getvalue()
-    _stdout_buffer.seek(0)
-    _stdout_buffer.truncate(0)
-    _stderr_buffer.seek(0)
-    _stderr_buffer.truncate(0)
-    return stdout_content, stderr_content
-
-def reset_output():
-    sys.stdout = sys.__stdout__
-    sys.stderr = sys.__stderr__
-        `);
+        pyodide.runPython('\nimport sys\nimport io\n\n_stdout_buffer = io.StringIO()\n_stderr_buffer = io.StringIO()\n\ndef capture_output():\n    sys.stdout = _stdout_buffer\n    sys.stderr = _stderr_buffer\n\ndef get_output():\n    stdout_content = _stdout_buffer.getvalue()\n    stderr_content = _stderr_buffer.getvalue()\n    _stdout_buffer.seek(0)\n    _stdout_buffer.truncate(0)\n    _stderr_buffer.seek(0)\n    _stderr_buffer.truncate(0)\n    return stdout_content, stderr_content\n\ndef reset_output():\n    sys.stdout = sys.__stdout__\n    sys.stderr = sys.__stderr__\n        ');
         
       } catch (error) {
         pythonStatus.textContent = 'Full Python failed to load. Using quick mode.';
@@ -339,26 +330,7 @@ def reset_output():
 
     // Info modal functionality
     infoBtn.addEventListener('click', () => {
-      alert(`Python Compiler Shortcuts & Features:
-
-📝 EDITOR:
-✅ Tab - Add 4 spaces (Python standard)
-✅ Shift+Tab - Remove indentation
-✅ Auto-indent after colon (:)
-✅ Ctrl+Enter - Run code
-✅ Ctrl+F - Find in browser page
-✅ Ctrl+C - Copy selected text
-✅ Ctrl+V - Paste text
-✅ Ctrl+Z - Undo
-✅ Ctrl+Y - Redo
-
-🐍 PYTHON:
-✅ Quick mode (Skulpt) - Instant execution
-✅ Full mode (Pyodide) - All libraries
-✅ Auto-save - Code saved automatically
-✅ Install packages - numpy, pandas, etc.
-
-💡 TIP: Start typing immediately, Python loads in background!`);
+      alert('Python Compiler Shortcuts & Features:\n\n📝 EDITOR:\n✅ Tab - Add 4 spaces (Python standard)\n✅ Shift+Tab - Remove indentation\n✅ Auto-indent after colon (:)\n✅ Ctrl+Enter - Run code\n✅ Ctrl+F - Find in browser page\n✅ Ctrl+C - Copy selected text\n✅ Ctrl+V - Paste text\n✅ Ctrl+Z - Undo\n✅ Ctrl+Y - Redo\n\n🐍 PYTHON:\n✅ Quick mode (Skulpt) - Instant execution\n✅ Full mode (Pyodide) - All libraries\n✅ Auto-save - Code saved automatically\n✅ Install packages - numpy, pandas, etc.\n\n💡 TIP: Start typing immediately, Python loads in background!');
     });
 
     // Run code
@@ -387,7 +359,7 @@ def reset_output():
           if (stdout) output.textContent += stdout;
           if (stderr) output.textContent += `Error: ${stderr}`;
           if (result !== undefined && result !== null && String(result) !== 'None') {
-            output.textContent += result + '\\n';
+            output.textContent += result + '\n';
           }
           
         } else if (skulptReady) {
