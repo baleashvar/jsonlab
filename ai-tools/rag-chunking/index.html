@@ -33,7 +33,7 @@
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-medium mb-1">Target Model</label>
-          <select id="model-select" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+          <select id="model-select" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm" style="border: 1px solid #d1d5db;">
             <option value="gpt-4o">GPT-4o (128K context)</option>
             <option value="gpt-4-turbo">GPT-4 Turbo (128K context)</option>
             <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo (16K context)</option>
@@ -43,15 +43,15 @@
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Chunk Size (tokens)</label>
-          <input type="number" id="chunk-size" value="512" min="100" max="4000" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+          <input type="number" id="chunk-size" value="512" min="100" max="4000" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm" style="border: 1px solid #d1d5db;">
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Overlap (tokens)</label>
-          <input type="number" id="overlap-size" value="50" min="0" max="500" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+          <input type="number" id="overlap-size" value="50" min="0" max="500" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm" style="border: 1px solid #d1d5db;">
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Strategy</label>
-          <select id="strategy-select" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm">
+          <select id="strategy-select" class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-sm" style="border: 1px solid #d1d5db;">
             <option value="fixed">Fixed Token</option>
             <option value="structure" selected>Structure-Aware</option>
           </select>
