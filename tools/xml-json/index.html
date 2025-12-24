@@ -10,7 +10,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XML to JSON | JSONLab</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.google-analytics.com">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<title>XML to JSON Converter - Convert XML to JSON Online | JSONLab</title>
+<meta name="description" content="Convert XML to JSON format instantly with our free online converter. Transform XML data structures to JSON for APIs, web development, and data processing. Fast, secure, works offline.">
 <link rel="stylesheet" href="/src/css/styles.css">
 <script src="https://cdn.jsdelivr.net/npm/xml2js/dist/xml2js.min.js"></script>
 </head>
@@ -35,6 +40,13 @@ JSONLab
 <button id="convert-btn" class="px-4 py-2 bg-blue-600 text-white rounded">Convert</button>
 <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded ml-2">Copy</button>
 </div>
+
+<!-- Content Section -->
+<div class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+<p class="text-sm text-gray-700 dark:text-gray-300 max-w-4xl">
+Convert XML documents to JSON format for modern web applications and APIs. Our XML to JSON converter preserves data structure while transforming XML elements and attributes into JSON objects and arrays. Perfect for migrating legacy XML data to JSON-based systems, API integration, and web development workflows.
+</p>
+</div>
 <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
 <div class="flex-1 flex flex-col border-r">
 <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">XML Input</div>
@@ -48,6 +60,18 @@ JSONLab
 </main>
 <script type="module" src="/src/js/theme.js"></script>
 <script>
+// Theme toggle
+const moonIcon = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+const theme = localStorage.getItem('theme') || 'light';
+document.documentElement.className = theme;
+document.getElementById('theme-icon').innerHTML = moonIcon;
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const newTheme = document.documentElement.className === 'dark' ? 'light' : 'dark';
+  document.documentElement.className = newTheme;
+  localStorage.setItem('theme', newTheme);
+});
+
 document.getElementById('convert-btn').onclick = () => {
 xml2js.parseString(document.getElementById('input').value, (err, res) => {
 if(err) document.getElementById('output').textContent = 'Invalid XML: ' + err.message;
