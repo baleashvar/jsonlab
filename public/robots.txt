@@ -1,8 +1,9 @@
 User-agent: *
 Allow: /
+
+# Specific important paths
+Allow: /tools/
+Allow: /ai-tools/
 Allow: /blog/
-Allow: /blog/json-vs-yaml/
-Allow: /blog/python-json-parsing/
-Allow: /blog/api-testing-json/
 
 Sitemap: https://jsonlab.xyz/sitemap.xml

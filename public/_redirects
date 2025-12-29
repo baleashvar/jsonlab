@@ -1,9 +1,5 @@
-# Redirect all www to non-www
-https://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301!
-http://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301!
-
-# Redirect http to https
-http://jsonlab.xyz/* https://jsonlab.xyz/:splat 301!
-
-# Remove query parameters for canonical URLs
-https://jsonlab.xyz/?* https://jsonlab.xyz/ 301!
+# Cloudflare Pages redirects
+/www/* https://jsonlab.xyz/:splat 301
+https://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301
+http://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301
+http://jsonlab.xyz/* https://jsonlab.xyz/:splat 301
