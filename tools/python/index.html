@@ -151,23 +151,10 @@ Features:
   </div>
 
   <script>
-    // Load Skulpt dynamically
-    async function loadSkulpt() {
-      return new Promise((resolve) => {
-        const script1 = document.createElement('script');
-        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js';
-        script1.onload = () => {
-          const script2 = document.createElement('script');
-          script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js';
-          script2.onload = resolve;
-          document.head.appendChild(script2);
-        };
-        document.head.appendChild(script1);
-      });
-    }
+    // Simplified initialization - no heavy libraries on page load
     let pyodideReady = false;
-    let pyodide;
     let skulptReady = false;
+    let pyodide;
 
     // Elements
     const editor = document.getElementById('editor');
@@ -199,138 +186,52 @@ Features:
       document.getElementById('theme-icon').innerHTML = icons[newTheme];
     });
 
-    // Setup Skulpt after loading
-    async function setupSkulpt() {
-      await loadSkulpt();
+    // Load libraries only when run button is clicked
+    async function loadPythonEngine() {
+      if (skulptReady || pyodideReady) return;
       
-      if (typeof Sk !== 'undefined') {
-        Sk.configure({
-          output: function(text) {
-            output.textContent += text;
-          },
-          read: function(x) {
-            if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-              throw "File not found: '" + x + "'";
-            return Sk.builtinFiles["files"][x];
-          }
-        });
-        skulptReady = true;
-        modeStatus.textContent = 'Loading Libraries';
-        checkEngineReady();
-      } else {
-        modeStatus.textContent = 'Quick mode failed';
-      }
-    }
-
-    // Load Pyodide in background
-    async function initPyodideInBackground() {
+      modeStatus.textContent = 'Loading Python...';
+      runBtn.disabled = true;
+      
       try {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
-        document.head.appendChild(script);
+        // Load Skulpt first (lighter)
+        const script1 = document.createElement('script');
+        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js';
+        document.head.appendChild(script1);
         
-        await new Promise((resolve, reject) => {
-          script.onload = resolve;
-          script.onerror = reject;
+        await new Promise((resolve) => {
+          script1.onload = () => {
+            const script2 = document.createElement('script');
+            script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js';
+            script2.onload = resolve;
+            document.head.appendChild(script2);
+          };
         });
         
-        pyodide = await window.loadPyodide({
-          packages: [] // Minimal load
-        });
-        
-        pyodideReady = true;
-        modeStatus.textContent = 'Full Python ready';
-        modeStatus.className = 'text-sm text-green-600 dark:text-green-400 ml-auto';
-        pythonStatus.textContent = 'Full Python loaded! All libraries now supported.';
-        installBtn.disabled = false;
-        checkEngineReady();
-        
-        // Setup output capture for Pyodide
-        pyodide.runPython('\nimport sys\nimport io\n\n_stdout_buffer = io.StringIO()\n_stderr_buffer = io.StringIO()\n\ndef capture_output():\n    sys.stdout = _stdout_buffer\n    sys.stderr = _stderr_buffer\n\ndef get_output():\n    stdout_content = _stdout_buffer.getvalue()\n    stderr_content = _stderr_buffer.getvalue()\n    _stdout_buffer.seek(0)\n    _stdout_buffer.truncate(0)\n    _stderr_buffer.seek(0)\n    _stderr_buffer.truncate(0)\n    return stdout_content, stderr_content\n\ndef reset_output():\n    sys.stdout = sys.__stdout__\n    sys.stderr = sys.__stderr__\n        ');
-        
+        if (typeof Sk !== 'undefined') {
+          Sk.configure({
+            output: function(text) {
+              output.textContent += text;
+            },
+            read: function(x) {
+              if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+                throw "File not found: '" + x + "'";
+              return Sk.builtinFiles["files"][x];
+            }
+          });
+          skulptReady = true;
+          modeStatus.textContent = 'Python Ready';
+          runBtn.disabled = false;
+        }
       } catch (error) {
-        pythonStatus.textContent = 'Full Python failed to load. Using quick mode.';
-        modeStatus.textContent = 'Quick mode only';
+        modeStatus.textContent = 'Python load failed';
+        output.textContent += 'Error loading Python engine\n';
       }
     }
-
-    // Initialize immediately
-    setupSkulpt();
-    initPyodideInBackground();
 
     // Auto-save
     editor.addEventListener('input', () => {
       localStorage.setItem('python_code', editor.value);
-    });
-
-    // Smart indentation for Python
-    editor.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const lines = editor.value.substring(0, editor.selectionStart).split('\n');
-        const currentLine = lines[lines.length - 1];
-        
-        // Get current indentation
-        const indent = currentLine.match(/^\s*/)[0];
-        
-        // Add extra indent after colon
-        const needsIndent = currentLine.trim().endsWith(':');
-        const newIndent = needsIndent ? indent + '    ' : indent;
-        
-        // Insert newline with proper indentation
-        e.preventDefault();
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        const value = editor.value;
-        
-        editor.value = value.substring(0, start) + '\n' + newIndent + value.substring(end);
-        editor.selectionStart = editor.selectionEnd = start + 1 + newIndent.length;
-      }
-      
-      // Tab key for indentation
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        
-        if (e.shiftKey) {
-          // Shift+Tab: Remove indentation
-          const lines = editor.value.split('\n');
-          const startLine = editor.value.substring(0, start).split('\n').length - 1;
-          const endLine = editor.value.substring(0, end).split('\n').length - 1;
-          
-          for (let i = startLine; i <= endLine; i++) {
-            if (lines[i].startsWith('    ')) {
-              lines[i] = lines[i].substring(4);
-            } else if (lines[i].startsWith('\t')) {
-              lines[i] = lines[i].substring(1);
-            }
-          }
-          
-          editor.value = lines.join('\n');
-        } else {
-          // Tab: Add indentation
-          editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
-          editor.selectionStart = editor.selectionEnd = start + 4;
-        }
-      }
-      
-      // Backspace: Smart indentation removal
-      if (e.key === 'Backspace') {
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        
-        // Only handle if no selection and cursor is after spaces
-        if (start === end && start >= 4) {
-          const beforeCursor = editor.value.substring(start - 4, start);
-          
-          // If the 4 characters before cursor are spaces, remove all 4
-          if (beforeCursor === '    ') {
-            e.preventDefault();
-            editor.value = editor.value.substring(0, start - 4) + editor.value.substring(start);
-            editor.selectionStart = editor.selectionEnd = start - 4;
-          }
-        }
-      }
     });
 
     // Load saved code
@@ -342,39 +243,12 @@ Features:
       output.textContent = 'Output cleared\n\n';
     });
 
-    // Install libraries
-    installBtn.addEventListener('click', async () => {
-      if (!pyodideReady) {
-        output.textContent += 'Full Python not ready yet...\n';
-        return;
-      }
-      
-      const packages = prompt('Enter package names (comma-separated):\nAvailable: numpy, matplotlib, pandas, scipy, sympy, pillow', 'numpy');
-      if (!packages) return;
-      
-      const packageList = packages.split(',').map(p => p.trim());
-      
-      installBtn.disabled = true;
-      installBtn.textContent = '⏳ Installing...';
-      
-      try {
-        await pyodide.loadPackage(packageList);
-        output.textContent += `✓ Installed: ${packageList.join(', ')}\n`;
-      } catch (err) {
-        output.textContent += `✗ Install failed: ${err.message}\n`;
-      }
-      
-      installBtn.disabled = false;
-      installBtn.textContent = '📦 Install Libs';
-    });
-
     // Copy code functionality
     copyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(editor.value).then(() => {
         copyBtn.textContent = '✓';
         setTimeout(() => copyBtn.textContent = '📋', 1000);
       }).catch(() => {
-        // Fallback for older browsers
         editor.select();
         document.execCommand('copy');
         copyBtn.textContent = '✓';
@@ -384,7 +258,7 @@ Features:
 
     // Info modal functionality
     infoBtn.addEventListener('click', () => {
-      alert('Python Compiler Shortcuts & Features:\n\n📝 EDITOR:\n✅ Tab - Add 4 spaces (Python standard)\n✅ Shift+Tab - Remove indentation\n✅ Auto-indent after colon (:)\n✅ Ctrl+Enter - Run code\n✅ Ctrl+F - Find in browser page\n✅ Ctrl+C - Copy selected text\n✅ Ctrl+V - Paste text\n✅ Ctrl+Z - Undo\n✅ Ctrl+Y - Redo\n\n🐍 PYTHON:\n✅ Quick mode (Skulpt) - Instant execution\n✅ Full mode (Pyodide) - All libraries\n✅ Auto-save - Code saved automatically\n✅ Install packages - numpy, pandas, etc.\n\n💡 TIP: Start typing immediately, Python loads in background!');
+      alert('Python Compiler Features:\n\n📝 EDITOR:\n✅ Auto-save - Code saved automatically\n✅ Ctrl+Enter - Run code\n\n🐍 PYTHON:\n✅ Libraries load on first run\n✅ Supports basic Python operations\n\n💡 TIP: Click Run to load Python engine!');
     });
 
     // Run code
@@ -392,8 +266,13 @@ Features:
       const code = editor.value.trim();
       if (!code) return;
       
+      // Load Python engine if not ready
       if (!skulptReady && !pyodideReady) {
-        output.textContent += 'Python not ready yet...\n';
+        await loadPythonEngine();
+      }
+      
+      if (!skulptReady) {
+        output.textContent += 'Python engine not ready\n';
         return;
       }
       
@@ -401,33 +280,14 @@ Features:
       runBtn.textContent = '⏳ Running...';
       
       try {
-        if (pyodideReady) {
-          // Full Python mode with Pyodide
-          pyodide.runPython('capture_output()');
-          
-          const result = await pyodide.runPythonAsync(code);
-          
-          const [stdout, stderr] = pyodide.runPython('get_output()');
-          pyodide.runPython('reset_output()');
-          
-          if (stdout) output.textContent += stdout;
-          if (stderr) output.textContent += `Error: ${stderr}`;
-          if (result !== undefined && result !== null && String(result) !== 'None') {
-            output.textContent += result + '\n';
-          }
-          
-        } else if (skulptReady) {
-          // Quick mode with Skulpt
-          await Sk.misceval.asyncToPromise(() => {
-            return Sk.importMainWithBody("<stdin>", false, code, true);
-          });
-        }
-        
+        await Sk.misceval.asyncToPromise(() => {
+          return Sk.importMainWithBody("<stdin>", false, code, true);
+        });
       } catch (err) {
         output.textContent += `Error: ${err.toString()}\n`;
       }
       
-      output.textContent += '\n\n[Execution Finished]\n';
+      output.textContent += '\n[Execution Finished]\n';
       output.scrollTop = output.scrollHeight;
       
       runBtn.disabled = false;
@@ -435,13 +295,6 @@ Features:
     }
 
     runBtn.addEventListener('click', runCode);
-    
-    // Enable run button when either engine is ready
-    function checkEngineReady() {
-      if (skulptReady || pyodideReady) {
-        runBtn.disabled = false;
-      }
-    }
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -449,8 +302,13 @@ Features:
         e.preventDefault();
         runCode();
       }
-
     });
+
+    // Initialize status
+    modeStatus.textContent = 'Click Run to load Python';
+    pythonStatus.textContent = 'Python engine loads on demand for faster page loading';
+    installBtn.disabled = true;
+    installBtn.textContent = '📦 Advanced libs (coming soon)';
   </script>
 </body>
 </html>
