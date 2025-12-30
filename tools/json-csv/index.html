@@ -10,8 +10,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JSON to CSV Converter | JSONLab</title>
-<meta name="description" content="Convert JSON to CSV online. Fast, free, and private JSON to CSV converter.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://www.googletagmanager.com https://www.google-analytics.com">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<title>JSON to CSV - Convert JSON to CSV Online | JSONLab</title>
+<meta name="description" content="Convert JSON arrays to CSV format instantly. Free online JSON to CSV converter with download option. No signup required, works offline.">
 <link rel="stylesheet" href="/src/css/styles.css">
 </head>
 <body class="flex flex-col h-screen">
@@ -31,6 +35,14 @@ JSONLab
 </nav>
 </header>
 <main class="flex-1 flex flex-col overflow-hidden">
+<!-- Content Section -->
+<div class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+<h1 class="text-2xl font-bold mb-2">JSON to CSV Converter</h1>
+<p class="text-sm text-gray-700 dark:text-gray-300 max-w-4xl">
+Convert JSON arrays to CSV format for spreadsheet applications like Excel, Google Sheets, or data analysis tools. Simply paste your JSON array and get properly formatted CSV output with headers automatically extracted from your data structure.
+</p>
+</div>
+
 <div class="bg-white dark:bg-gray-800 border-b px-4 py-2">
 <button id="convert-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Convert</button>
 <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded ml-2 hover:bg-gray-300">Copy</button>
@@ -50,6 +62,18 @@ JSONLab
 <div id="toast" class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded shadow-lg hidden">Copied!</div>
 <script type="module" src="/src/js/theme.js"></script>
 <script>
+// Theme toggle
+const moonIcon = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
+const theme = localStorage.getItem('theme') || 'light';
+document.documentElement.className = theme;
+document.getElementById('theme-icon').innerHTML = moonIcon;
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const newTheme = document.documentElement.className === 'dark' ? 'light' : 'dark';
+  document.documentElement.className = newTheme;
+  localStorage.setItem('theme', newTheme);
+});
+
 function jsonToCsv(json) {
   const arr = JSON.parse(json);
   if (!Array.isArray(arr) || arr.length === 0) throw new Error('Input must be a non-empty array');
