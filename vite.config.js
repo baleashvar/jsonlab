@@ -20,6 +20,7 @@ export default defineConfig({
         jwt: 'tools/jwt-decoder/index.html',
         hash: 'tools/hash-generator/index.html',
         python: 'tools/python/index.html',
+        golang: 'tools/golang/index.html',
         blog: 'blog/index.html',
         jsonvsyaml: 'blog/json-vs-yaml/index.html',
         pythonjson: 'blog/python-json-parsing/index.html',
@@ -34,5 +35,5 @@ export default defineConfig({
     cssMinify: true
   },
   publicDir: 'public',
-  assetsInclude: ['tools/react/**', 'tools/golang/**']
+  assetsInclude: ['tools/golang/**']
 });
