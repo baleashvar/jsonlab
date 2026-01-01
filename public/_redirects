@@ -3,3 +3,7 @@
 https://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301
 http://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301
 http://jsonlab.xyz/* https://jsonlab.xyz/:splat 301
+
+# SPA fallback for tools
+/tools/react/* /tools/react/index.html 200
+/tools/golang/* /tools/golang/index.html 200
