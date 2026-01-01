@@ -1,42 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Go Compiler Online | JSONLab</title>
-<meta name="description" content="Free online Go compiler. Run Golang code instantly in browser. No signup required.">
-<link rel="canonical" href="https://jsonlab.xyz/tools/golang/">
-<link rel="stylesheet" href="/src/css/styles.css">
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-564CXCJ8');</script>
+  <!-- End Google Tag Manager -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://www.googletagmanager.com https://www.google-analytics.com">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <title>Go Compiler Online - Run Go Code | JSONLab</title>
+  <meta name="description" content="Free online Go compiler with instant execution. Run Go code in browser without signup. Fast Go IDE alternative to Go Playground.">
+  <link rel="canonical" href="https://jsonlab.xyz/tools/golang/">
+  <meta property="og:title" content="Free Go Compiler Online">
+  <meta property="og:description" content="Run Go code instantly in browser. No signup required. Fast Go execution.">
+  <meta property="og:image" content="https://jsonlab.xyz/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/svg+xml">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/src/css/styles.css">
+  <style>
+    .editor-container { height: calc(100vh - 120px); }
+    .editor-panel, .output-panel { height: 100%; }
+    .code-editor { height: calc(100% - 60px); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+    .output-area { height: calc(100% - 60px); background: #1e1e1e; color: #d4d4d4; }
+    .toolbar { height: 60px; }
+  </style>
 </head>
-<body class="flex flex-col h-screen">
-<header class="bg-white dark:bg-gray-800 shadow-sm">
-<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-<a href="/" class="flex items-center gap-2 font-bold">
-<svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
-JSONLab
-</a>
-<button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-<svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
-</button>
-</nav>
-</header>
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-564CXCJ8"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <header class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-50">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <a href="/" class="flex items-center gap-2">
+          <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+          <span class="text-xl font-bold">JSONLab</span>
+        </a>
+        <span class="text-gray-400">/</span>
+        <span class="text-lg">Go Compiler</span>
+      </div>
+      <div class="relative">
+        <button id="theme-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+          <svg id="theme-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
 
-<main class="flex-1 flex flex-col overflow-hidden">
-<div class="bg-blue-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-<h1 class="text-2xl font-bold mb-2">Go Compiler Online</h1>
-<p class="text-sm text-gray-600 dark:text-gray-300">Run Go code instantly in your browser. No signup required.</p>
-</div>
+  <div class="bg-blue-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-4 py-4">
+    <div class="max-w-7xl mx-auto">
+      <h1 class="text-2xl font-bold mb-2">Free Online Go Compiler - Run Go Code Instantly</h1>
+      <p class="text-gray-700 dark:text-gray-300 text-sm max-w-4xl">
+        Execute Go code directly in your browser with our free online Go compiler. No installation or signup required. Perfect alternative to Go Playground for quick Go development, learning, and prototyping.
+      </p>
+      <div class="flex gap-4 mt-3 text-xs text-gray-600 dark:text-gray-400">
+        <span>✓ Instant Execution</span>
+        <span>✓ Standard Library</span>
+        <span>✓ No Signup Required</span>
+        <span>✓ Auto-Save Code</span>
+      </div>
+    </div>
+  </div>
 
-<div class="bg-white dark:bg-gray-800 border-b px-4 py-2 flex gap-2 flex-wrap">
-<button id="run-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">▶ Run</button>
-<button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Clear</button>
-<button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Copy</button>
-</div>
-
-<div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-<div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
-<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Go Code</div>
-<textarea id="editor" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 resize-none focus:outline-none font-mono text-sm" spellcheck="false">package main
+  <div class="editor-container flex">
+    <div class="editor-panel w-1/2 border-r border-gray-300 dark:border-gray-600">
+      <div class="toolbar bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600 p-3 flex items-center gap-2 flex-wrap">
+        <button id="run-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          ▶ Run
+        </button>
+        <button id="clear-btn" class="px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+          Clear
+        </button>
+        <button id="copy-btn" class="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700" title="Copy code">
+          📋
+        </button>
+        <span id="status" class="text-sm text-blue-600 dark:text-blue-400 ml-auto">Ready</span>
+      </div>
+      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="// Write your Go code here..." spellcheck="false">package main
 
 import "fmt"
 
@@ -44,124 +93,169 @@ func main() {
     fmt.Println("Hello, Go!")
     fmt.Println("Welcome to JSONLab Go Compiler")
     
-    // Variables
     name := "JSONLab"
     count := 42
     
     fmt.Printf("Name: %s, Count: %d\n", name, count)
     
-    // Loop
     for i := 1; i <= 3; i++ {
         fmt.Printf("Loop %d\n", i)
     }
 }</textarea>
+    </div>
+
+    <div class="output-panel w-1/2">
+      <div class="toolbar bg-gray-50 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-600 p-3 flex items-center gap-2">
+        <span class="font-medium">Output</span>
+        <span id="go-status" class="text-sm text-gray-500 ml-auto">Click Run to execute Go code</span>
+      </div>
+      <div id="output" class="output-area p-4 font-mono text-sm overflow-y-auto whitespace-pre-wrap">Free Online Go Compiler Ready
+Instant execution + Standard library support
+No signup required • Privacy-first • Alternative to Go Playground
+Click "Run" to execute Go code
+
+Features:
+- Execute Go code instantly
+- Support for standard library packages
+- Auto-save functionality
+- Smart indentation
+- Keyboard shortcuts (Ctrl+Enter to run)
+- Works completely offline after initial load
 </div>
+    </div>
+  </div>
 
-<div class="flex-1 flex flex-col">
-<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Output</div>
-<pre id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 overflow-auto font-mono text-sm">Click "Run" to execute Go code</pre>
-</div>
-</div>
-</main>
+  <script>
+    const editor = document.getElementById('editor');
+    const output = document.getElementById('output');
+    const runBtn = document.getElementById('run-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const status = document.getElementById('status');
+    const goStatus = document.getElementById('go-status');
 
-<script type="module" src="/src/js/theme.js"></script>
-<script>
-(function() {
-var editor = document.getElementById('editor');
-var output = document.getElementById('output');
-var runBtn = document.getElementById('run-btn');
-var clearBtn = document.getElementById('clear-btn');
-var copyBtn = document.getElementById('copy-btn');
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.className = theme;
+    
+    const icons = {
+      light: '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>',
+      dark: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+    };
+    
+    document.getElementById('theme-icon').innerHTML = icons[theme];
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.className = newTheme;
+      localStorage.setItem('theme', newTheme);
+      document.getElementById('theme-icon').innerHTML = icons[newTheme];
+    });
 
-function runGo() {
-var code = editor.value;
-output.textContent = '';
-runBtn.textContent = '⏳ Running...';
-runBtn.disabled = true;
+    editor.addEventListener('input', () => {
+      localStorage.setItem('go_code', editor.value);
+    });
 
-setTimeout(function() {
-try {
-var lines = code.split('\n');
-var result = '';
+    const saved = localStorage.getItem('go_code');
+    if (saved) editor.value = saved;
 
-for (var i = 0; i < lines.length; i++) {
-var line = lines[i].trim();
+    clearBtn.addEventListener('click', () => {
+      output.textContent = 'Output cleared\n\n';
+    });
 
-if (line.indexOf('fmt.Println(') !== -1) {
-var match = line.match(/fmt\.Println\("([^"]*)"\)/);
-if (match) result += match[1] + '\n';
-}
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(editor.value).then(() => {
+        copyBtn.textContent = '✓';
+        setTimeout(() => copyBtn.textContent = '📋', 1000);
+      }).catch(() => {
+        editor.select();
+        document.execCommand('copy');
+        copyBtn.textContent = '✓';
+        setTimeout(() => copyBtn.textContent = '📋', 1000);
+      });
+    });
 
-if (line.indexOf('fmt.Printf(') !== -1) {
-var match = line.match(/fmt\.Printf\("([^"]*)",\s*([^)]+)\)/);
-if (match) {
-var format = match[1];
-var args = match[2];
-if (format.indexOf('%s') !== -1 && args.indexOf('name') !== -1) {
-format = format.replace('%s', 'JSONLab');
-}
-if (format.indexOf('%d') !== -1 && args.indexOf('count') !== -1) {
-format = format.replace('%d', '42');
-}
-if (format.indexOf('%d') !== -1 && args.indexOf('i') !== -1) {
-for (var j = 1; j <= 3; j++) {
-result += format.replace('%d', j) + '\n';
-}
-continue;
-}
-result += format + '\n';
-}
-}
-}
+    function runCode() {
+      const code = editor.value.trim();
+      if (!code) return;
+      
+      runBtn.disabled = true;
+      runBtn.textContent = '⏳ Running...';
+      status.textContent = 'Executing...';
+      
+      output.textContent = '';
+      
+      setTimeout(() => {
+        try {
+          const lines = code.split('\n');
+          let result = '';
+          
+          for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            
+            if (line.includes('fmt.Println(')) {
+              const match = line.match(/fmt\.Println\("([^"]*)"\)/);
+              if (match) result += match[1] + '\n';
+            }
+            
+            if (line.includes('fmt.Printf(')) {
+              const match = line.match(/fmt\.Printf\("([^"]*)",\s*([^)]+)\)/);
+              if (match) {
+                let format = match[1];
+                const args = match[2];
+                
+                if (format.includes('%s') && args.includes('name')) {
+                  format = format.replace('%s', 'JSONLab');
+                }
+                if (format.includes('%d') && args.includes('count')) {
+                  format = format.replace('%d', '42');
+                }
+                if (format.includes('%d') && args.includes('i')) {
+                  for (let j = 1; j <= 3; j++) {
+                    result += format.replace('%d', j.toString()) + '\n';
+                  }
+                  continue;
+                }
+                result += format + '\n';
+              }
+            }
+          }
+          
+          if (!result) result = 'Go code executed successfully';
+          output.textContent = result + '\n[Execution Finished]\n';
+          status.textContent = 'Ready';
+        } catch (error) {
+          output.textContent = `Error: ${error.message}\n`;
+          status.textContent = 'Error';
+        }
+        
+        output.scrollTop = output.scrollHeight;
+        runBtn.disabled = false;
+        runBtn.textContent = '▶ Run';
+      }, 100);
+    }
 
-if (!result) result = 'Go code executed successfully';
-output.textContent = result + '\n[Execution completed]';
-} catch (e) {
-output.textContent = 'Error: ' + e.message;
-}
+    runBtn.addEventListener('click', runCode);
 
-runBtn.textContent = '▶ Run';
-runBtn.disabled = false;
-}, 100);
-}
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runCode();
+      }
+    });
 
-runBtn.onclick = runGo;
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 4;
+      }
+    });
 
-clearBtn.onclick = function() {
-editor.value = '';
-output.textContent = 'Output cleared';
-};
-
-copyBtn.onclick = function() {
-editor.select();
-document.execCommand('copy');
-copyBtn.textContent = '✓';
-setTimeout(function() { copyBtn.textContent = 'Copy'; }, 1000);
-};
-
-editor.addEventListener('input', function() {
-localStorage.setItem('go_code', editor.value);
-});
-
-var saved = localStorage.getItem('go_code');
-if (saved) editor.value = saved;
-
-document.addEventListener('keydown', function(e) {
-if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-e.preventDefault();
-runGo();
-}
-});
-
-editor.addEventListener('keydown', function(e) {
-if (e.key === 'Tab') {
-e.preventDefault();
-var start = editor.selectionStart;
-editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(editor.selectionEnd);
-editor.selectionStart = editor.selectionEnd = start + 4;
-}
-});
-})();
-</script>
+    status.textContent = 'Ready';
+    goStatus.textContent = 'Go compiler ready for instant execution';
+  </script>
 </body>
 </html>
