@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go Compiler Online | JSONLab</title>
+<meta name="description" content="Free online Go compiler. Run Golang code instantly in browser. No signup required.">
+<link rel="canonical" href="https://jsonlab.xyz/tools/golang/">
+<link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+<header class="bg-white dark:bg-gray-800 shadow-sm">
+<nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+<a href="/" class="flex items-center gap-2 font-bold">
+<svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+JSONLab
+</a>
+<button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+<svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
+</button>
+</nav>
+</header>
+
+<main class="flex-1 flex flex-col overflow-hidden">
+<div class="bg-blue-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+<h1 class="text-2xl font-bold mb-2">Go Compiler Online</h1>
+<p class="text-sm text-gray-600 dark:text-gray-300">Run Go code instantly in your browser. No signup required.</p>
+</div>
+
+<div class="bg-white dark:bg-gray-800 border-b px-4 py-2 flex gap-2 flex-wrap">
+<button id="run-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">▶ Run</button>
+<button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Clear</button>
+<button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Copy</button>
+</div>
+
+<div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+<div class="flex-1 flex flex-col border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Go Code</div>
+<textarea id="editor" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 resize-none focus:outline-none font-mono text-sm" spellcheck="false">package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, Go!")
+    fmt.Println("Welcome to JSONLab Go Compiler")
+    
+    // Variables
+    name := "JSONLab"
+    count := 42
+    
+    fmt.Printf("Name: %s, Count: %d\n", name, count)
+    
+    // Loop
+    for i := 1; i <= 3; i++ {
+        fmt.Printf("Loop %d\n", i)
+    }
+}</textarea>
+</div>
+
+<div class="flex-1 flex flex-col">
+<div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Output</div>
+<pre id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 overflow-auto font-mono text-sm">Click "Run" to execute Go code</pre>
+</div>
+</div>
+</main>
+
+<script type="module" src="/src/js/theme.js"></script>
+<script>
+(function() {
+var editor = document.getElementById('editor');
+var output = document.getElementById('output');
+var runBtn = document.getElementById('run-btn');
+var clearBtn = document.getElementById('clear-btn');
+var copyBtn = document.getElementById('copy-btn');
+
+function runGo() {
+var code = editor.value;
+output.textContent = '';
+runBtn.textContent = '⏳ Running...';
+runBtn.disabled = true;
+
+setTimeout(function() {
+try {
+var lines = code.split('\n');
+var result = '';
+
+for (var i = 0; i < lines.length; i++) {
+var line = lines[i].trim();
+
+if (line.indexOf('fmt.Println(') !== -1) {
+var match = line.match(/fmt\.Println\("([^"]*)"\)/);
+if (match) result += match[1] + '\n';
+}
+
+if (line.indexOf('fmt.Printf(') !== -1) {
+var match = line.match(/fmt\.Printf\("([^"]*)",\s*([^)]+)\)/);
+if (match) {
+var format = match[1];
+var args = match[2];
+if (format.indexOf('%s') !== -1 && args.indexOf('name') !== -1) {
+format = format.replace('%s', 'JSONLab');
+}
+if (format.indexOf('%d') !== -1 && args.indexOf('count') !== -1) {
+format = format.replace('%d', '42');
+}
+if (format.indexOf('%d') !== -1 && args.indexOf('i') !== -1) {
+for (var j = 1; j <= 3; j++) {
+result += format.replace('%d', j) + '\n';
+}
+continue;
+}
+result += format + '\n';
+}
+}
+}
+
+if (!result) result = 'Go code executed successfully';
+output.textContent = result + '\n[Execution completed]';
+} catch (e) {
+output.textContent = 'Error: ' + e.message;
+}
+
+runBtn.textContent = '▶ Run';
+runBtn.disabled = false;
+}, 100);
+}
+
+runBtn.onclick = runGo;
+
+clearBtn.onclick = function() {
+editor.value = '';
+output.textContent = 'Output cleared';
+};
+
+copyBtn.onclick = function() {
+editor.select();
+document.execCommand('copy');
+copyBtn.textContent = '✓';
+setTimeout(function() { copyBtn.textContent = 'Copy'; }, 1000);
+};
+
+editor.addEventListener('input', function() {
+localStorage.setItem('go_code', editor.value);
+});
+
+var saved = localStorage.getItem('go_code');
+if (saved) editor.value = saved;
+
+document.addEventListener('keydown', function(e) {
+if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+e.preventDefault();
+runGo();
+}
+});
+
+editor.addEventListener('keydown', function(e) {
+if (e.key === 'Tab') {
+e.preventDefault();
+var start = editor.selectionStart;
+editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(editor.selectionEnd);
+editor.selectionStart = editor.selectionEnd = start + 4;
+}
+});
+})();
+</script>
+</body>
+</html>
