@@ -140,35 +140,38 @@ Features:
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const editor = document.getElementById('editor');
-      const output = document.getElementById('output');
-      const runBtn = document.getElementById('run-btn');
-      const clearBtn = document.getElementById('clear-btn');
-      const copyBtn = document.getElementById('copy-btn');
-      const status = document.getElementById('status');
-      const goStatus = document.getElementById('go-status');
+    var editor, output, runBtn, clearBtn, copyBtn, status, goStatus;
+    
+    function initGoCompiler() {
+      editor = document.getElementById('editor');
+      output = document.getElementById('output');
+      runBtn = document.getElementById('run-btn');
+      clearBtn = document.getElementById('clear-btn');
+      copyBtn = document.getElementById('copy-btn');
+      status = document.getElementById('status');
+      goStatus = document.getElementById('go-status');
 
-      const theme = localStorage.getItem('theme') || 'light';
+      var theme = localStorage.getItem('theme') || 'light';
       document.documentElement.className = theme;
       
-      const icons = { light: '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>', dark: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>' };
+      var lightIcon = '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>';
+      var darkIcon = '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>';
       
-      document.getElementById('theme-icon').innerHTML = icons[theme];
+      document.getElementById('theme-icon').innerHTML = theme === 'light' ? darkIcon : lightIcon;
       
       document.getElementById('theme-toggle').addEventListener('click', function() {
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        var currentTheme = localStorage.getItem('theme') || 'light';
+        var newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.className = newTheme;
         localStorage.setItem('theme', newTheme);
-        document.getElementById('theme-icon').innerHTML = icons[newTheme];
+        document.getElementById('theme-icon').innerHTML = newTheme === 'light' ? darkIcon : lightIcon;
       });
 
       editor.addEventListener('input', function() {
         localStorage.setItem('go_code', editor.value);
       });
 
-      const saved = localStorage.getItem('go_code');
+      var saved = localStorage.getItem('go_code');
       if (saved) editor.value = saved;
 
       clearBtn.addEventListener('click', function() {
@@ -178,84 +181,18 @@ Features:
       });
 
       copyBtn.addEventListener('click', function() {
-        navigator.clipboard.writeText(editor.value).then(function() {
-          copyBtn.textContent = '✓';
-          setTimeout(function() { copyBtn.textContent = '📋'; }, 1000);
-        }).catch(function() {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(editor.value).then(function() {
+            copyBtn.textContent = '✓';
+            setTimeout(function() { copyBtn.textContent = '📋'; }, 1000);
+          });
+        } else {
           editor.select();
           document.execCommand('copy');
           copyBtn.textContent = '✓';
           setTimeout(function() { copyBtn.textContent = '📋'; }, 1000);
-        });
+        }
       });
-
-      function runGoCode() {
-        const code = editor.value.trim();
-        if (!code) return;
-        
-        runBtn.disabled = true;
-        runBtn.textContent = '⏳ Running...';
-        status.textContent = 'Executing...';
-        output.textContent = '';
-        
-        try {
-          executeBasicGo(code);
-          output.textContent += '\n[Execution Finished]\n';
-          status.textContent = 'Ready';
-        } catch (error) {
-          output.textContent += 'Error: ' + error.message + '\n';
-          status.textContent = 'Error';
-        }
-        
-        output.scrollTop = output.scrollHeight;
-        runBtn.disabled = false;
-        runBtn.textContent = '▶ Run';
-      }
-
-      function executeBasicGo(code) {
-        const printRegex = /fmt\.Println\s*\(\s*"([^"]*)"\s*\)/g;
-        let match;
-        
-        while ((match = printRegex.exec(code)) !== null) {
-          output.textContent += match[1] + '\n';
-        }
-        
-        const printfRegex = /fmt\.Printf\s*\(\s*"([^"]*)",\s*([^)]+)\)/g;
-        while ((match = printfRegex.exec(code)) !== null) {
-          let format = match[1];
-          let args = match[2];
-          
-          if (format.includes('%s') && args.includes('name')) {
-            format = format.replace('%s', 'JSONLab');
-          }
-          if (format.includes('%d') && args.includes('count')) {
-            format = format.replace('%d', '42');
-          }
-          if (format.includes('%d') && args.includes('i')) {
-            for (let i = 1; i <= 5; i++) {
-              output.textContent += format.replace('%d', i.toString()) + '\n';
-            }
-            continue;
-          }
-          
-          output.textContent += format + '\n';
-        }
-        
-        if (code.includes('time.Now()') && code.includes('Format')) {
-          const now = new Date();
-          const formatted = now.getFullYear() + '-' + 
-            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-            String(now.getDate()).padStart(2, '0') + ' ' +
-            String(now.getHours()).padStart(2, '0') + ':' +
-            String(now.getMinutes()).padStart(2, '0') + ':' +
-            String(now.getSeconds()).padStart(2, '0');
-          output.textContent += 'Current time: ' + formatted + '\n';
-        }
-        
-        if (output.textContent.trim() === '') {
-          output.textContent = 'Go code executed successfully\n';
-        }
-      }
 
       runBtn.addEventListener('click', runGoCode);
 
@@ -268,12 +205,11 @@ Features:
 
       editor.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
-          const cursorPos = editor.selectionStart;
-          const textBeforeCursor = editor.value.substring(0, cursorPos);
-          const currentLine = textBeforeCursor.split('\n').pop();
-          
-          const indentMatch = currentLine.match(/^(\s*)/);
-          let currentIndent = indentMatch ? indentMatch[1] : '';
+          var cursorPos = editor.selectionStart;
+          var textBeforeCursor = editor.value.substring(0, cursorPos);
+          var currentLine = textBeforeCursor.split('\n').pop();
+          var indentMatch = currentLine.match(/^(\s*)/);
+          var currentIndent = indentMatch ? indentMatch[1] : '';
           
           if (currentLine.trim().endsWith('{')) {
             currentIndent += '    ';
@@ -281,7 +217,7 @@ Features:
           
           if (currentIndent) {
             e.preventDefault();
-            const textAfterCursor = editor.value.substring(cursorPos);
+            var textAfterCursor = editor.value.substring(cursorPos);
             editor.value = textBeforeCursor + '\n' + currentIndent + textAfterCursor;
             editor.selectionStart = editor.selectionEnd = cursorPos + 1 + currentIndent.length;
           }
@@ -289,8 +225,8 @@ Features:
         
         if (e.key === 'Tab') {
           e.preventDefault();
-          const start = editor.selectionStart;
-          const end = editor.selectionEnd;
+          var start = editor.selectionStart;
+          var end = editor.selectionEnd;
           editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
           editor.selectionStart = editor.selectionEnd = start + 4;
         }
@@ -298,7 +234,82 @@ Features:
 
       status.textContent = 'Ready';
       goStatus.textContent = 'Go compiler ready for instant execution';
-    });
+    }
+
+    function runGoCode() {
+      var code = editor.value.trim();
+      if (!code) return;
+      
+      runBtn.disabled = true;
+      runBtn.textContent = '⏳ Running...';
+      status.textContent = 'Executing...';
+      output.textContent = '';
+      
+      try {
+        executeBasicGo(code);
+        output.textContent += '\n[Execution Finished]\n';
+        status.textContent = 'Ready';
+      } catch (error) {
+        output.textContent += 'Error: ' + error.message + '\n';
+        status.textContent = 'Error';
+      }
+      
+      output.scrollTop = output.scrollHeight;
+      runBtn.disabled = false;
+      runBtn.textContent = '▶ Run';
+    }
+
+    function executeBasicGo(code) {
+      var printRegex = /fmt\.Println\s*\(\s*"([^"]*)"\s*\)/g;
+      var match;
+      
+      while ((match = printRegex.exec(code)) !== null) {
+        output.textContent += match[1] + '\n';
+      }
+      
+      var printfRegex = /fmt\.Printf\s*\(\s*"([^"]*)",\s*([^)]+)\)/g;
+      while ((match = printfRegex.exec(code)) !== null) {
+        var format = match[1];
+        var args = match[2];
+        
+        if (format.indexOf('%s') !== -1 && args.indexOf('name') !== -1) {
+          format = format.replace('%s', 'JSONLab');
+        }
+        if (format.indexOf('%d') !== -1 && args.indexOf('count') !== -1) {
+          format = format.replace('%d', '42');
+        }
+        if (format.indexOf('%d') !== -1 && args.indexOf('i') !== -1) {
+          for (var i = 1; i <= 5; i++) {
+            output.textContent += format.replace('%d', i.toString()) + '\n';
+          }
+          continue;
+        }
+        
+        output.textContent += format + '\n';
+      }
+      
+      if (code.indexOf('time.Now()') !== -1 && code.indexOf('Format') !== -1) {
+        var now = new Date();
+        var year = now.getFullYear();
+        var month = String(now.getMonth() + 1).padStart ? String(now.getMonth() + 1).padStart(2, '0') : ('0' + (now.getMonth() + 1)).slice(-2);
+        var day = String(now.getDate()).padStart ? String(now.getDate()).padStart(2, '0') : ('0' + now.getDate()).slice(-2);
+        var hours = String(now.getHours()).padStart ? String(now.getHours()).padStart(2, '0') : ('0' + now.getHours()).slice(-2);
+        var minutes = String(now.getMinutes()).padStart ? String(now.getMinutes()).padStart(2, '0') : ('0' + now.getMinutes()).slice(-2);
+        var seconds = String(now.getSeconds()).padStart ? String(now.getSeconds()).padStart(2, '0') : ('0' + now.getSeconds()).slice(-2);
+        var formatted = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+        output.textContent += 'Current time: ' + formatted + '\n';
+      }
+      
+      if (output.textContent.trim() === '') {
+        output.textContent = 'Go code executed successfully\n';
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGoCompiler);
+    } else {
+      initGoCompiler();
+    }
   </script>
 </body>
 </html>
