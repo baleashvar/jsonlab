@@ -45,3 +45,12 @@ html.dark .json-string { color: #ce9178; }
 html.dark .json-number { color: #b5cea8; }
 html.dark .json-boolean { color: #569cd6; }
 html.dark .json-null { color: #808080; }
+
+/* Compiler Styles */
+.editor-container { height: calc(100vh - 120px); }
+.editor-panel, .output-panel { height: 100%; }
+.code-editor { height: calc(100% - 60px); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
+.output-area { height: calc(100% - 60px); background: #1e1e1e; color: #d4d4d4; }
+.toolbar { height: 60px; }
+.error-suggestion { background: #fee; border-left: 4px solid #f87171; padding: 8px; margin: 4px 0; font-size: 12px; }
+.dark .error-suggestion { background: #451a1a; color: #fca5a5; }
