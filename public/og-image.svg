@@ -1,0 +1,25 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1e40af"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Logo -->
+  <rect x="100" y="255" width="120" height="120" rx="12" fill="white"/>
+  <text x="160" y="335" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#3b82f6">{}</text>
+  
+  <!-- Content -->
+  <text x="280" y="280" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="white">JSONLab</text>
+  <text x="280" y="330" font-family="Arial, sans-serif" font-size="36" fill="white" opacity="0.9">Fast, Private JSON Tools</text>
+  
+  <text x="280" y="380" font-family="Arial, sans-serif" font-size="24" fill="white" opacity="0.8">✓ JSON Formatter &amp; Validator</text>
+  <text x="280" y="410" font-family="Arial, sans-serif" font-size="24" fill="white" opacity="0.8">✓ Python Compiler Online</text>
+  <text x="280" y="440" font-family="Arial, sans-serif" font-size="24" fill="white" opacity="0.8">✓ AI Developer Tools</text>
+  <text x="280" y="470" font-family="Arial, sans-serif" font-size="24" fill="white" opacity="0.8">✓ 100% Privacy-First</text>
+  
+  <text x="280" y="520" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#fbbf24">jsonlab.xyz</text>
+</svg>

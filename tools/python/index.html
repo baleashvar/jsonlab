@@ -19,7 +19,10 @@
   <link rel="canonical" href="https://jsonlab.xyz/tools/python/">
   <meta property="og:title" content="Free Python Compiler Online">
   <meta property="og:description" content="Run Python code instantly in browser. No signup required. Supports numpy, pandas, matplotlib.">
-  <meta property="og:image" content="https://jsonlab.xyz/thumbnail.jpg">
+  <meta property="og:image" content="https://jsonlab.xyz/og-image.svg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/svg+xml">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="/src/css/styles.css">
   <style>
@@ -28,6 +31,8 @@
     .code-editor { height: calc(100% - 60px); font-family: 'Consolas', 'Monaco', 'Courier New', monospace; }
     .output-area { height: calc(100% - 60px); background: #1e1e1e; color: #d4d4d4; }
     .toolbar { height: 60px; }
+    .error-suggestion { background: #fee; border-left: 4px solid #f87171; padding: 8px; margin: 4px 0; font-size: 12px; }
+    .dark .error-suggestion { background: #451a1a; color: #fca5a5; }
   </style>
 </head>
 <body>
@@ -106,9 +111,6 @@
           Clear
         </button>
         <div class="w-2"></div>
-        <button id="install-btn" class="px-3 py-2 bg-purple-600 text-white rounded hover:bg-purple-700" disabled>
-          📦 Install Libs
-        </button>
         <button id="copy-btn" class="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" title="Copy code">
           📋
         </button>
@@ -161,7 +163,6 @@ Features:
     const output = document.getElementById('output');
     const runBtn = document.getElementById('run-btn');
     const clearBtn = document.getElementById('clear-btn');
-    const installBtn = document.getElementById('install-btn');
     const copyBtn = document.getElementById('copy-btn');
     const infoBtn = document.getElementById('info-btn');
     const modeStatus = document.getElementById('mode-status');
@@ -229,10 +230,102 @@ Features:
       }
     }
 
-    // Auto-save
+    // Smart indentation, backspace, and auto-save
+    editor.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const cursorPos = editor.selectionStart;
+        const textBeforeCursor = editor.value.substring(0, cursorPos);
+        const currentLine = textBeforeCursor.split('\n').pop();
+        
+        // Calculate current indentation
+        const indentMatch = currentLine.match(/^(\s*)/);
+        let currentIndent = indentMatch ? indentMatch[1] : '';
+        
+        // Add extra indentation after colon
+        if (currentLine.trim().endsWith(':')) {
+          currentIndent += '    '; // 4 spaces
+        }
+        
+        // Insert newline with proper indentation
+        if (currentIndent) {
+          e.preventDefault();
+          const textAfterCursor = editor.value.substring(cursorPos);
+          editor.value = textBeforeCursor + '\n' + currentIndent + textAfterCursor;
+          editor.selectionStart = editor.selectionEnd = cursorPos + 1 + currentIndent.length;
+        }
+      }
+      
+      if (e.key === 'Backspace') {
+        const cursorPos = editor.selectionStart;
+        const textBeforeCursor = editor.value.substring(0, cursorPos);
+        const currentLine = textBeforeCursor.split('\n').pop();
+        
+        // Smart backspace: remove 4 spaces if at beginning of indented line
+        if (currentLine.match(/^    +$/) && currentLine.length >= 4) {
+          e.preventDefault();
+          const textAfterCursor = editor.value.substring(cursorPos);
+          const newText = textBeforeCursor.slice(0, -4) + textAfterCursor;
+          editor.value = newText;
+          editor.selectionStart = editor.selectionEnd = cursorPos - 4;
+        }
+      }
+      
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+        editor.selectionStart = editor.selectionEnd = start + 4;
+      }
+    });
+    
     editor.addEventListener('input', () => {
       localStorage.setItem('python_code', editor.value);
+      checkSyntax();
     });
+    
+    // Basic syntax checking
+    function checkSyntax() {
+      const code = editor.value;
+      const lines = code.split('\n');
+      const suggestions = [];
+      
+      lines.forEach((line, i) => {
+        const lineNum = i + 1;
+        const trimmed = line.trim();
+        
+        // Check for common Python syntax errors
+        if (trimmed.endsWith(':') && lines[i + 1] && !lines[i + 1].match(/^\s+/)) {
+          if (lines[i + 1].trim()) {
+            suggestions.push(`Line ${lineNum + 1}: Expected indentation after ':' on line ${lineNum}`);
+          }
+        }
+        
+        if (trimmed.match(/^(if|for|while|def|class|try|except|with)\s/) && !trimmed.endsWith(':')) {
+          suggestions.push(`Line ${lineNum}: Missing ':' at end of ${trimmed.split(' ')[0]} statement`);
+        }
+        
+        if (trimmed.match(/print\s*\(/)) {
+          const openParens = (line.match(/\(/g) || []).length;
+          const closeParens = (line.match(/\)/g) || []).length;
+          if (openParens > closeParens) {
+            suggestions.push(`Line ${lineNum}: Missing closing parenthesis`);
+          }
+        }
+      });
+      
+      // Display suggestions in output if any
+      if (suggestions.length > 0 && code.trim()) {
+        const suggestionHtml = suggestions.map(s => 
+          `<div class="error-suggestion">💡 ${s}</div>`
+        ).join('');
+        
+        // Only show if output is empty or just contains welcome message
+        if (output.textContent.includes('Click "Run" to execute') || output.textContent.trim() === '') {
+          output.innerHTML = suggestionHtml;
+        }
+      }
+    }
 
     // Load saved code
     const saved = localStorage.getItem('python_code');
@@ -276,6 +369,10 @@ Features:
         return;
       }
       
+      // Clear previous output and suggestions
+      output.innerHTML = '';
+      output.textContent = '';
+      
       runBtn.disabled = true;
       runBtn.textContent = '⏳ Running...';
       
@@ -305,10 +402,8 @@ Features:
     });
 
     // Initialize status
-    modeStatus.textContent = 'Click Run to load Python';
-    pythonStatus.textContent = 'Python engine loads on demand for faster page loading';
-    installBtn.disabled = true;
-    installBtn.textContent = '📦 Advanced libs (coming soon)';
+    modeStatus.textContent = 'Ready - Click Run to start';
+    pythonStatus.textContent = 'Python loads automatically on first run';
   </script>
 </body>
 </html>
