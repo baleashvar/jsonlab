@@ -1,0 +1,20 @@
+PLACEHOLDER - Replace this with actual thumbnail.jpg
+
+To create the actual thumbnail.jpg:
+
+1. Open create-thumbnail.html in Chrome browser
+2. Take a screenshot of the thumbnail area (1200x630px)
+3. Save as thumbnail.jpg in this public/ folder
+4. Delete this placeholder file
+
+Alternative methods:
+- Use any image editor to create a 1200x630px image
+- Use online tools like Canva or Figma
+- Convert the existing og-image.svg to JPG format
+
+The image should show:
+- JSONLab branding
+- "Fast, Private JSON Tools" tagline  
+- Key features listed
+- jsonlab.xyz URL
+- Blue gradient background (#3b82f6 to #1e40af)

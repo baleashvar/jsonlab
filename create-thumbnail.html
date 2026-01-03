@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSONLab Thumbnail Generator</title>
+    <style>
+        .thumbnail {
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            display: flex;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            color: white;
+            position: relative;
+        }
+        .logo {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #3b82f6;
+            margin-left: 100px;
+            margin-right: 60px;
+        }
+        .content {
+            flex: 1;
+        }
+        .title {
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .subtitle {
+            font-size: 36px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .features {
+            font-size: 24px;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        .url {
+            font-size: 28px;
+            font-weight: bold;
+            color: #fbbf24;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="thumbnail" id="thumbnail">
+        <div class="logo">{}</div>
+        <div class="content">
+            <div class="title">JSONLab</div>
+            <div class="subtitle">Fast, Private JSON Tools</div>
+            <div class="features">
+                ✓ JSON Formatter & Validator<br>
+                ✓ Python Compiler Online<br>
+                ✓ AI Developer Tools<br>
+                ✓ 100% Privacy-First
+            </div>
+            <div class="url">jsonlab.xyz</div>
+        </div>
+    </div>
+
+    <script>
+        // Instructions for creating thumbnail.jpg:
+        console.log(`
+To create thumbnail.jpg:
+1. Open this HTML file in Chrome
+2. Right-click on the blue thumbnail area
+3. Select "Inspect Element"
+4. Right-click on the div with class="thumbnail"
+5. Select "Capture node screenshot"
+6. Save as thumbnail.jpg
+7. Move to public/ folder
+        `);
+    </script>
+</body>
+</html>
