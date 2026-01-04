@@ -185,39 +185,101 @@ Features:
       modeStatus.textContent = 'Loading Python...';
       runBtn.disabled = true;
       
-      try {
-        // Load Skulpt first (lighter)
-        const script1 = document.createElement('script');
-        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js';
-        document.head.appendChild(script1);
-        
-        await new Promise((resolve) => {
-          script1.onload = () => {
-            const script2 = document.createElement('script');
-            script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js';
-            script2.onload = resolve;
-            document.head.appendChild(script2);
-          };
-        });
-        
-        if (typeof Sk !== 'undefined') {
-          Sk.configure({
-            output: function(text) {
-              output.textContent += text;
-            },
-            read: function(x) {
-              if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
-                throw "File not found: '" + x + "'";
-              return Sk.builtinFiles["files"][x];
-            }
-          });
-          skulptReady = true;
-          modeStatus.textContent = 'Python Ready';
-          runBtn.disabled = false;
+      // Try multiple CDNs as fallback
+      const cdnUrls = [
+        {
+          skulpt: 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js',
+          stdlib: 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js'
+        },
+        {
+          skulpt: 'https://cdn.jsdelivr.net/npm/skulpt@0.11.1/dist/skulpt.min.js',
+          stdlib: 'https://cdn.jsdelivr.net/npm/skulpt@0.11.1/dist/skulpt-stdlib.js'
         }
-      } catch (error) {
-        modeStatus.textContent = 'Python load failed';
-        output.textContent += 'Error loading Python engine\n';
+      ];
+      
+      for (let i = 0; i < cdnUrls.length; i++) {
+        try {
+          const urls = cdnUrls[i];
+          modeStatus.textContent = `Loading Python... (attempt ${i + 1}/${cdnUrls.length})`;
+          
+          // Load Skulpt with timeout and error handling
+          const script1 = document.createElement('script');
+          script1.src = urls.skulpt;
+          
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Skulpt loading timeout'));
+            }, 10000); // 10 second timeout
+            
+            script1.onload = () => {
+              clearTimeout(timeout);
+              const script2 = document.createElement('script');
+              script2.src = urls.stdlib;
+              
+              const timeout2 = setTimeout(() => {
+                reject(new Error('Skulpt stdlib loading timeout'));
+              }, 10000);
+              
+              script2.onload = () => {
+                clearTimeout(timeout2);
+                resolve();
+              };
+              
+              script2.onerror = () => {
+                clearTimeout(timeout2);
+                reject(new Error('Failed to load Skulpt stdlib'));
+              };
+              
+              document.head.appendChild(script2);
+            };
+            
+            script1.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error('Failed to load Skulpt'));
+            };
+            
+            document.head.appendChild(script1);
+          });
+          
+          // Wait a bit for Skulpt to initialize
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          if (typeof Sk !== 'undefined') {
+            Sk.configure({
+              output: function(text) {
+                output.textContent += text;
+              },
+              read: function(x) {
+                if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][x] === undefined)
+                  throw "File not found: '" + x + "'";
+                return Sk.builtinFiles["files"][x];
+              }
+            });
+            skulptReady = true;
+            modeStatus.textContent = 'Python Ready';
+            runBtn.disabled = false;
+            output.textContent += 'Python engine loaded successfully!\n\n';
+            return; // Success, exit the loop
+          } else {
+            throw new Error('Skulpt not available after loading');
+          }
+        } catch (error) {
+          console.error(`Python loading error (attempt ${i + 1}):`, error);
+          
+          // If this was the last attempt, show error
+          if (i === cdnUrls.length - 1) {
+            modeStatus.textContent = 'Python load failed';
+            runBtn.disabled = false;
+            output.textContent += `Error loading Python engine: ${error.message}\n`;
+            output.textContent += 'All CDN sources failed. Please check your internet connection and try again.\n\n';
+            output.textContent += 'Troubleshooting:\n';
+            output.textContent += '1. Refresh the page\n';
+            output.textContent += '2. Check if you can access external CDNs\n';
+            output.textContent += '3. Try disabling ad blockers temporarily\n';
+            output.textContent += '4. Check your firewall settings\n\n';
+          }
+          // Continue to next CDN
+        }
       }
     }
 
@@ -342,21 +404,25 @@ Features:
 
     // Info modal functionality
     infoBtn.addEventListener('click', () => {
-      alert('Python Compiler Features:\n\n📝 EDITOR:\n✅ Auto-save - Code saved automatically\n✅ Ctrl+Enter - Run code\n\n🐍 PYTHON:\n✅ Libraries load on first run\n✅ Supports basic Python operations\n\n💡 TIP: Click Run to load Python engine!');
+      alert('Python Compiler - Keyboard Shortcuts & Features:\n\n⌨️ KEYBOARD SHORTCUTS:\n• Ctrl+Enter (Cmd+Enter) - Run code\n• Tab - Insert 4 spaces (indentation)\n• Enter - Auto-indent after colon (:)\n• Backspace - Smart unindent (removes 4 spaces)\n\n📝 EDITOR FEATURES:\n• Auto-save - Code saved automatically to localStorage\n• Smart indentation - Automatic Python indentation\n• Syntax hints - Basic error detection\n• Copy code - Click 📋 button\n\n🐍 PYTHON SUPPORT:\n• Python 3.x syntax\n• Built-in libraries (math, random, etc.)\n• Basic data structures\n• Control flow (if, for, while)\n• Functions and classes\n\n💡 TIPS:\n• Libraries load automatically on first run\n• Code persists between sessions\n• Works offline after initial load\n• No signup or registration required');
     });
 
     // Run code
     async function runCode() {
       const code = editor.value.trim();
-      if (!code) return;
+      if (!code) {
+        output.textContent += 'No code to run. Please enter some Python code first.\n';
+        return;
+      }
       
       // Load Python engine if not ready
       if (!skulptReady && !pyodideReady) {
+        output.textContent += 'Loading Python engine for the first time...\n';
         await loadPythonEngine();
       }
       
       if (!skulptReady) {
-        output.textContent += 'Python engine not ready\n';
+        output.textContent += 'Python engine not ready. Please try refreshing the page.\n';
         return;
       }
       
@@ -395,6 +461,21 @@ Features:
     // Initialize status
     modeStatus.textContent = 'Ready - Click Run to start';
     pythonStatus.textContent = 'Python loads automatically on first run';
+    
+    // Test connectivity on page load
+    async function testConnectivity() {
+      try {
+        const response = await fetch('https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js', { method: 'HEAD' });
+        if (!response.ok) {
+          pythonStatus.textContent = 'Warning: CDN connectivity issues detected';
+        }
+      } catch (error) {
+        pythonStatus.textContent = 'Warning: No internet connection detected';
+      }
+    }
+    
+    // Test connectivity after a short delay
+    setTimeout(testConnectivity, 1000);
   </script>
 </body>
 </html>
