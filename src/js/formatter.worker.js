@@ -13,6 +13,8 @@ self.onmessage = (e) => {
     } else if (action === 'validate') {
       JSON.parse(data);
       self.postMessage({ success: true, valid: true });
+    } else {
+      self.postMessage({ success: false, error: 'Unknown action' });
     }
   } catch (err) {
     const match = err.message.match(/position (\d+)/);

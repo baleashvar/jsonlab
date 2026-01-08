@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://jsonlab.xyz/</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://jsonlab.xyz/thumbnail.jpg</image:loc>
+      <image:title>JSONLab - Free Online JSON Tools and Python Compiler</image:title>
+      <image:caption>Fast, private JSON tools and Python compiler that runs in your browser</image:caption>
+    </image:image>
   </url>
   <url>
     <loc>https://jsonlab.xyz/tools/formatter/</loc>

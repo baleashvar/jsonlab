@@ -12,6 +12,9 @@ if(document.getElementById('theme-toggle')) {
     const newTheme = document.documentElement.className === 'dark' ? 'light' : 'dark';
     document.documentElement.className = newTheme;
     localStorage.setItem('theme', newTheme);
-    document.getElementById('theme-icon').innerHTML = icons[newTheme];
+    const themeIcon = document.getElementById('theme-icon');
+  if (themeIcon) {
+    themeIcon.innerHTML = icons[newTheme];
+  }
   });
 }

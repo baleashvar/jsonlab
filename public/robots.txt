@@ -1,9 +1,13 @@
 User-agent: *
 Allow: /
-
-# Specific important paths
 Allow: /tools/
-Allow: /ai-tools/
 Allow: /blog/
+Allow: /ai-tools/
+Allow: /*.css
+Allow: /*.js
+Allow: /*.jpg
+Allow: /*.png
+Allow: /*.ico
+Allow: /*.svg
 
 Sitemap: https://jsonlab.xyz/sitemap.xml
