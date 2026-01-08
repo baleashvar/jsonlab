@@ -21,7 +21,7 @@ export default defineConfig({
         jsonDiff: resolve(__dirname, 'tools/json-diff/index.html'),
         jwtDecoder: resolve(__dirname, 'tools/jwt-decoder/index.html'),
         jsonToTypes: resolve(__dirname, 'tools/json-to-types/index.html'),
-        python: resolve(__dirname, 'tools/python/index.html'),
+        xmlFormatter: resolve(__dirname, 'tools/xml-formatter/index.html'),
         golang: resolve(__dirname, 'tools/golang/index.html'),
         // AI Tools
         aiTools: resolve(__dirname, 'ai-tools/index.html'),

@@ -3,6 +3,7 @@ Allow: /
 Allow: /tools/
 Allow: /blog/
 Allow: /ai-tools/
+Allow: /about/
 Allow: /*.css
 Allow: /*.js
 Allow: /*.jpg

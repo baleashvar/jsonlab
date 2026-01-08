@@ -102,6 +102,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://jsonlab.xyz/tools/xml-formatter/</loc>
+    <lastmod>2024-12-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://jsonlab.xyz/tools/python/</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>

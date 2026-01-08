@@ -41,6 +41,7 @@ JSONLab provides lightning-fast, privacy-first JSON tools that run entirely in y
 - **[CSV to JSON](https://jsonlab.xyz/tools/csv-json/)** - Convert CSV files to JSON format
 - **[JSON to CSV](https://jsonlab.xyz/tools/json-csv/)** - Export JSON data as CSV
 - **[JSON to Types](https://jsonlab.xyz/tools/json-to-types/)** - Generate TypeScript, Go, Java types from JSON
+- **[XML Formatter](https://jsonlab.xyz/tools/xml-formatter/)** - Format and beautify XML with syntax validation
 - **[About JSONLab](https://jsonlab.xyz/about/)** - Learn about our privacy-first architecture and enterprise features
 
 ### Encoding & Utilities
