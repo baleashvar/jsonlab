@@ -22,7 +22,7 @@
   <meta property="og:image" content="https://jsonlab.xyz/thumbnail.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:type" content="image/jpeg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="/src/css/styles.css">
 </head>
@@ -187,6 +187,10 @@ Features:
       
       // Try multiple CDNs as fallback
       const cdnUrls = [
+        {
+          skulpt: 'https://unpkg.com/skulpt@0.11.1/dist/skulpt.min.js',
+          stdlib: 'https://unpkg.com/skulpt@0.11.1/dist/skulpt-stdlib.js'
+        },
         {
           skulpt: 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js',
           stdlib: 'https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt-stdlib.js'
