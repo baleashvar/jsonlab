@@ -40,6 +40,10 @@ JSONLab
 </div>
 <div class="bg-white dark:bg-gray-800 border-b px-4 py-2">
 <button id="view-btn" class="px-4 py-2 bg-blue-600 text-white rounded">View Tree</button>
+<label class="ml-4 text-sm">
+  <input type="checkbox" id="virtualized" class="mr-1"> Virtualized (for large JSON)
+</label>
+<span id="node-count" class="ml-4 text-sm text-gray-500"></span>
 </div>
 <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
 <div class="flex-1 flex flex-col border-r">
@@ -54,15 +58,117 @@ JSONLab
 </main>
 <script type="module" src="/src/js/theme.js"></script>
 <script>
-document.getElementById('view-btn').onclick = () => {
-try {
-const obj = JSON.parse(document.getElementById('input').value);
-const formatter = new JSONFormatter(obj, 2);
-document.getElementById('tree').innerHTML = '';
-document.getElementById('tree').appendChild(formatter.render());
-} catch(e) {
-document.getElementById('tree').innerHTML = '<div class="text-red-600">Invalid JSON: ' + e.message + '</div>';
+class VirtualizedTreeRenderer {
+  constructor(container, data, maxVisible = 100) {
+    this.container = container;
+    this.data = data;
+    this.maxVisible = maxVisible;
+    this.flatNodes = [];
+    this.visibleNodes = [];
+    this.scrollTop = 0;
+    this.nodeHeight = 24;
+    this.expandedNodes = new Set();
+    
+    this.flatten(data, '', 0);
+    this.render();
+  }
+  
+  flatten(obj, path, level) {
+    if (typeof obj === 'object' && obj !== null) {
+      if (Array.isArray(obj)) {
+        this.flatNodes.push({ type: 'array', path, level, length: obj.length, expanded: false });
+        if (this.expandedNodes.has(path)) {
+          obj.forEach((item, i) => {
+            this.flatten(item, `${path}[${i}]`, level + 1);
+          });
+        }
+      } else {
+        const keys = Object.keys(obj);
+        this.flatNodes.push({ type: 'object', path, level, keys: keys.length, expanded: false });
+        if (this.expandedNodes.has(path)) {
+          keys.forEach(key => {
+            this.flatten(obj[key], path ? `${path}.${key}` : key, level + 1);
+          });
+        }
+      }
+    } else {
+      this.flatNodes.push({ type: 'value', path, level, value: obj });
+    }
+  }
+  
+  render() {
+    const startIndex = Math.floor(this.scrollTop / this.nodeHeight);
+    const endIndex = Math.min(startIndex + this.maxVisible, this.flatNodes.length);
+    
+    let html = `<div style="height: ${this.flatNodes.length * this.nodeHeight}px; position: relative;">`;
+    
+    for (let i = startIndex; i < endIndex; i++) {
+      const node = this.flatNodes[i];
+      const top = i * this.nodeHeight;
+      const indent = node.level * 20;
+      
+      html += `<div style="position: absolute; top: ${top}px; left: ${indent}px; height: ${this.nodeHeight}px; line-height: ${this.nodeHeight}px;">`;
+      
+      if (node.type === 'object') {
+        html += `<span class="cursor-pointer" onclick="toggleNode('${node.path}')">📁 {${node.keys} keys}</span>`;
+      } else if (node.type === 'array') {
+        html += `<span class="cursor-pointer" onclick="toggleNode('${node.path}')">📂 [${node.length} items]</span>`;
+      } else {
+        html += `<span class="text-blue-600">${JSON.stringify(node.value)}</span>`;
+      }
+      
+      html += '</div>';
+    }
+    
+    html += '</div>';
+    this.container.innerHTML = html;
+  }
 }
+
+let treeRenderer;
+
+function toggleNode(path) {
+  if (treeRenderer.expandedNodes.has(path)) {
+    treeRenderer.expandedNodes.delete(path);
+  } else {
+    treeRenderer.expandedNodes.add(path);
+  }
+  treeRenderer.flatNodes = [];
+  treeRenderer.flatten(treeRenderer.data, '', 0);
+  treeRenderer.render();
+}
+
+function countNodes(obj) {
+  let count = 0;
+  function traverse(item) {
+    count++;
+    if (typeof item === 'object' && item !== null) {
+      Object.values(item).forEach(traverse);
+    }
+  }
+  traverse(obj);
+  return count;
+}
+
+document.getElementById('view-btn').onclick = () => {
+  try {
+    const obj = JSON.parse(document.getElementById('input').value);
+    const nodeCount = countNodes(obj);
+    document.getElementById('node-count').textContent = `${nodeCount} nodes`;
+    
+    const container = document.getElementById('tree');
+    const useVirtualized = document.getElementById('virtualized').checked;
+    
+    if (useVirtualized || nodeCount > 1000) {
+      treeRenderer = new VirtualizedTreeRenderer(container, obj);
+    } else {
+      const formatter = new JSONFormatter(obj, 2);
+      container.innerHTML = '';
+      container.appendChild(formatter.render());
+    }
+  } catch(e) {
+    document.getElementById('tree').innerHTML = '<div class="text-red-600">Invalid JSON: ' + e.message + '</div>';
+  }
 };
 </script>
 </body>

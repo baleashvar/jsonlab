@@ -1,0 +1,40 @@
+{
+  "name": "JSONLab - Developer Tools",
+  "short_name": "JSONLab",
+  "description": "Fast, private JSON tools and Python compiler",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/thumbnail.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["developer", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "JSON Formatter",
+      "short_name": "Format",
+      "description": "Format and beautify JSON",
+      "url": "/tools/formatter/",
+      "icons": [{"src": "/favicon.ico", "sizes": "32x32"}]
+    },
+    {
+      "name": "Python Compiler",
+      "short_name": "Python",
+      "description": "Run Python code online",
+      "url": "/tools/python/",
+      "icons": [{"src": "/favicon.ico", "sizes": "32x32"}]
+    }
+  ]
+}

@@ -2,6 +2,14 @@
 
 🚀 **Live at [jsonlab.xyz](https://jsonlab.xyz)** - Free online JSON tools and Python compiler
 
+## How It Works - Privacy-First Architecture
+
+JSONLab runs entirely in your browser using **Web Workers** for heavy processing:
+- 🔒 **Zero Server Processing** - All JSON parsing happens locally
+- ⚡ **Web Worker Architecture** - Non-blocking UI for large files
+- 🛡️ **No Data Collection** - Your code never leaves your device
+- 📱 **Offline Capable** - Works without internet after first load
+
 ## What JSONLab Does
 
 JSONLab provides lightning-fast, privacy-first JSON tools that run entirely in your browser. No servers, no tracking, no signup required. Perfect for developers who need reliable JSON processing tools that work offline and keep data secure.

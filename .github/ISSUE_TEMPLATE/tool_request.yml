@@ -1,0 +1,45 @@
+name: New Tool Request
+description: Suggest a new developer tool for JSONLab
+title: "[TOOL REQUEST] "
+labels: ["enhancement", "tool-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new tool! Help us understand what you need.
+  
+  - type: input
+    id: tool-name
+    attributes:
+      label: Tool Name
+      description: What should this tool be called?
+      placeholder: e.g., "JSON Schema Generator"
+    validations:
+      required: true
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should this tool do?
+      placeholder: Describe the functionality you'd like to see
+    validations:
+      required: true
+  
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: When would developers use this tool?
+      placeholder: Explain the problem this tool would solve
+    validations:
+      required: true
+  
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy Requirements
+      description: Should this tool maintain JSONLab's privacy-first approach?
+      options:
+        - label: This tool should work entirely in the browser (no server processing)
+          required: true

@@ -10,7 +10,7 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://www.googletagmanager.com https://www.google-analytics.com">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://cdnjs.cloudflare.com">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
@@ -22,6 +22,7 @@
   <meta property="og:image" content="https://jsonlab.xyz/thumbnail.jpg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="/src/css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -62,9 +63,14 @@
         <button id="minify-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Minify</button>
         <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Copy</button>
         <button id="download-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Download</button>
+        <button id="share-btn" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">Share</button>
         <label class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300 cursor-pointer">
           Upload
           <input type="file" id="upload-btn" accept=".json,.txt" class="hidden">
+        </label>
+        <label class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 cursor-pointer">
+          Batch Upload
+          <input type="file" id="batch-upload" accept=".json,.txt" multiple class="hidden">
         </label>
         <button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300">Clear</button>
         <select id="indent-select" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded text-sm">
@@ -302,11 +308,74 @@
       }
     });
 
-    // Sample JSON for demo
-    if (!input.value) {
-      input.value = '{"name":"JSONLab","fast":true,"tools":["formatter","validator","minifier"]}';
-    }
-    updateStats();
+    // URL parameter sync
+    const loadFromURL = () => {
+      const params = new URLSearchParams(window.location.search);
+      const data = params.get('data');
+      if (data) {
+        try {
+          input.value = atob(data);
+          updateStats();
+        } catch (e) {
+          console.error('Failed to load from URL:', e);
+        }
+      }
+    };
+    
+    const shareData = () => {
+      const data = input.value;
+      if (!data.trim()) {
+        alert('No data to share');
+        return;
+      }
+      const encoded = btoa(data);
+      const url = new URL(window.location);
+      url.searchParams.set('data', encoded);
+      navigator.clipboard.writeText(url.toString());
+      toast.textContent = 'Share URL copied!';
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.textContent = 'Copied!';
+      }, 2000);
+    };
+    
+    document.getElementById('share-btn').addEventListener('click', shareData);
+    
+    // Batch processing
+    const processBatchFiles = async (files) => {
+      const zip = new JSZip();
+      const indent = document.getElementById('indent-select').value;
+      const indentValue = indent === 'tab' ? '\t' : parseInt(indent);
+      
+      for (const file of files) {
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          const formatted = JSON.stringify(parsed, null, indentValue);
+          const fileName = file.name.replace(/\.[^/.]+$/, '') + '_formatted.json';
+          zip.file(fileName, formatted);
+        } catch (e) {
+          console.error(`Error processing ${file.name}:`, e);
+          zip.file(file.name + '_error.txt', `Error: ${e.message}`);
+        }
+      }
+      
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'formatted_json_files.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+    
+    document.getElementById('batch-upload').addEventListener('change', (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        processBatchFiles(files);
+      }
+    });
   </script>
 </body>
 </html>

@@ -44,7 +44,11 @@
     </div>
     <div class="bg-white dark:bg-gray-800 grey:bg-gray-700 ocean:bg-slate-900 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
       <button id="validate-btn" class="px-4 py-2 bg-primary text-white rounded hover:bg-blue-600 font-medium">Validate</button>
+      <button id="auto-fix-btn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 ml-2">Auto-Fix</button>
       <button id="clear-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 grey:bg-gray-600 ocean:bg-slate-800 rounded hover:bg-gray-300 ml-2">Clear</button>
+      <label class="ml-4 text-sm">
+        <input type="checkbox" id="json5-mode" class="mr-1"> JSON5 Mode (allows trailing commas)
+      </label>
     </div>
     <div class="flex-1 flex flex-col overflow-hidden">
       <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 grey:bg-gray-800 ocean:bg-slate-950 border-b border-gray-200 dark:border-gray-700 text-sm font-medium">Input</div>
@@ -54,17 +58,56 @@
   </main>
   <script type="module" src="/src/js/theme.js"></script>
   <script>
-    document.getElementById('validate-btn').addEventListener('click', () => {
+    function autoFixJSON(jsonStr) {
+      // Remove trailing commas
+      return jsonStr
+        .replace(/,\s*}/g, '}')
+        .replace(/,\s*]/g, ']')
+        .replace(/'/g, '"'); // Replace single quotes with double quotes
+    }
+    
+    function validateJSON5(jsonStr) {
       try {
-        JSON.parse(document.getElementById('input').value);
-        document.getElementById('result').innerHTML = '<div class="text-green-600 dark:text-green-400 font-bold">✓ Valid JSON</div>';
+        // Basic JSON5 validation - allows trailing commas and single quotes
+        const fixed = autoFixJSON(jsonStr);
+        JSON.parse(fixed);
+        return { valid: true, fixed };
       } catch (e) {
-        const match = e.message.match(/position (\d+)/);
-        const pos = match ? parseInt(match[1]) : 0;
-        const lines = document.getElementById('input').value.substring(0, pos).split('\n');
-        document.getElementById('result').innerHTML = `<div class="text-red-600 dark:text-red-400"><strong>✗ Invalid JSON</strong><br>Line ${lines.length}, Column ${lines[lines.length-1].length + 1}<br>${e.message}</div>`;
+        return { valid: false, error: e.message };
+      }
+    }
+    
+    document.getElementById('validate-btn').addEventListener('click', () => {
+      const input = document.getElementById('input').value;
+      const json5Mode = document.getElementById('json5-mode').checked;
+      
+      if (json5Mode) {
+        const result = validateJSON5(input);
+        if (result.valid) {
+          document.getElementById('result').innerHTML = '<div class="text-green-600 dark:text-green-400 font-bold">✓ Valid JSON5</div>';
+        } else {
+          document.getElementById('result').innerHTML = `<div class="text-red-600 dark:text-red-400"><strong>✗ Invalid JSON5</strong><br>${result.error}</div>`;
+        }
+      } else {
+        try {
+          JSON.parse(input);
+          document.getElementById('result').innerHTML = '<div class="text-green-600 dark:text-green-400 font-bold">✓ Valid JSON</div>';
+        } catch (e) {
+          const match = e.message.match(/position (\d+)/);
+          const pos = match ? parseInt(match[1]) : 0;
+          const lines = input.substring(0, pos).split('\n');
+          document.getElementById('result').innerHTML = `<div class="text-red-600 dark:text-red-400"><strong>✗ Invalid JSON</strong><br>Line ${lines.length}, Column ${lines[lines.length-1].length + 1}<br>${e.message}</div>`;
+        }
       }
     });
+    
+    document.getElementById('auto-fix-btn').addEventListener('click', () => {
+      const input = document.getElementById('input').value;
+      const fixed = autoFixJSON(input);
+      document.getElementById('input').value = fixed;
+      document.getElementById('result').innerHTML = '<div class="text-blue-600 dark:text-blue-400">✓ Auto-fixed trailing commas and quotes</div>';
+    });
+    
     document.getElementById('clear-btn').addEventListener('click', () => {
       document.getElementById('input').value = '';
       document.getElementById('result').innerHTML = '';
