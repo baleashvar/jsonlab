@@ -20,7 +20,7 @@ export default defineConfig({
         jsonCsv: resolve(__dirname, 'tools/json-csv/index.html'),
         jsonDiff: resolve(__dirname, 'tools/json-diff/index.html'),
         jwtDecoder: resolve(__dirname, 'tools/jwt-decoder/index.html'),
-        hashGenerator: resolve(__dirname, 'tools/hash-generator/index.html'),
+        jsonToTypes: resolve(__dirname, 'tools/json-to-types/index.html'),
         python: resolve(__dirname, 'tools/python/index.html'),
         golang: resolve(__dirname, 'tools/golang/index.html'),
         // AI Tools
@@ -28,7 +28,7 @@ export default defineConfig({
         ragChunking: resolve(__dirname, 'ai-tools/rag-chunking/index.html'),
         tokenCalculator: resolve(__dirname, 'ai-tools/token-calculator/index.html'),
         vectorSimilarity: resolve(__dirname, 'ai-tools/vector-similarity/index.html'),
-        // Blog
+        about: resolve(__dirname, 'about/index.html'),
         blog: resolve(__dirname, 'blog/index.html'),
         jsonVsYaml: resolve(__dirname, 'blog/json-vs-yaml/index.html'),
         pythonJsonParsing: resolve(__dirname, 'blog/python-json-parsing/index.html'),

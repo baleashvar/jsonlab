@@ -96,6 +96,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://jsonlab.xyz/tools/json-to-types/</loc>
+    <lastmod>2024-12-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://jsonlab.xyz/tools/python/</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>
@@ -151,6 +157,12 @@
   </url>
   <url>
     <loc>https://jsonlab.xyz/blog/api-testing-json/</loc>
+    <lastmod>2024-12-15</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://jsonlab.xyz/about/</loc>
     <lastmod>2024-12-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON to TypeScript/Go/Java Converter | JSONLab</title>
+  <meta name="description" content="Convert JSON to TypeScript interfaces, Go structs, and Java classes. Generate type definitions from JSON data instantly.">
+  <link rel="canonical" href="https://jsonlab.xyz/tools/json-to-types/">
+  <meta property="og:title" content="JSON to Types Converter">
+  <meta property="og:description" content="Generate TypeScript, Go, Java types from JSON data">
+  <meta property="og:image" content="https://jsonlab.xyz/thumbnail.jpg">
+  <link rel="stylesheet" href="/src/css/styles.css">
+</head>
+<body class="flex flex-col h-screen">
+  <header class="bg-white dark:bg-gray-800 shadow-sm">
+    <nav class="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 font-bold">
+        <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h2v2H7V7zm0 4h2v2H7v-2zm0 4h2v2H7v-2zm4-8h6v2h-6V7zm0 4h6v2h-6v-2zm0 4h6v2h-6v-2z"/></svg>
+        JSONLab
+      </a>
+      <button id="theme-toggle" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
+        <svg id="theme-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"></svg>
+      </button>
+    </nav>
+  </header>
+  
+  <main class="flex-1 flex flex-col overflow-hidden">
+    <div class="bg-blue-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+      <h1 class="text-2xl font-bold mb-2">JSON to Types Converter</h1>
+      <p class="text-sm text-gray-600 dark:text-gray-300">Generate TypeScript interfaces, Go structs, and Java classes from JSON data. Perfect for backend developers.</p>
+    </div>
+    
+    <div class="bg-white dark:bg-gray-800 border-b px-4 py-2">
+      <div class="flex gap-2 items-center flex-wrap">
+        <button id="convert-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Convert</button>
+        <select id="language-select" class="px-3 py-2 border rounded">
+          <option value="typescript">TypeScript</option>
+          <option value="go">Go</option>
+          <option value="java">Java</option>
+        </select>
+        <input type="text" id="type-name" placeholder="Type name (e.g., User)" class="px-3 py-2 border rounded" value="GeneratedType">
+        <button id="copy-btn" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300">Copy</button>
+      </div>
+    </div>
+    
+    <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div class="flex-1 flex flex-col border-r">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">JSON Input</div>
+        <textarea id="input" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 resize-none focus:outline-none font-mono text-sm" placeholder='{"name": "John", "age": 30, "active": true}'></textarea>
+      </div>
+      <div class="flex-1 flex flex-col">
+        <div class="px-4 py-2 bg-gray-50 dark:bg-gray-900 border-b text-sm font-medium">Generated Types</div>
+        <div id="output" class="flex-1 p-4 bg-white dark:bg-gray-800 dark:text-gray-200 overflow-auto font-mono text-sm whitespace-pre"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function inferType(value) {
+      if (value === null) return 'null';
+      if (typeof value === 'boolean') return 'boolean';
+      if (typeof value === 'number') return Number.isInteger(value) ? 'number' : 'number';
+      if (typeof value === 'string') return 'string';
+      if (Array.isArray(value)) {
+        if (value.length === 0) return 'any[]';
+        const itemType = inferType(value[0]);
+        return `${itemType}[]`;
+      }
+      if (typeof value === 'object') return 'object';
+      return 'any';
+    }
+
+    function generateTypeScript(obj, typeName) {
+      function generateInterface(obj, name) {
+        let result = `interface ${name} {\n`;
+        for (const [key, value] of Object.entries(obj)) {
+          const type = inferType(value);
+          if (type === 'object' && value !== null) {
+            const nestedName = key.charAt(0).toUpperCase() + key.slice(1);
+            result = generateInterface(value, nestedName) + '\n' + result;
+            result += `  ${key}: ${nestedName};\n`;
+          } else {
+            result += `  ${key}: ${type};\n`;
+          }
+        }
+        result += '}';
+        return result;
+      }
+      return generateInterface(obj, typeName);
+    }
+
+    function generateGo(obj, typeName) {
+      function generateStruct(obj, name) {
+        let result = `type ${name} struct {\n`;
+        for (const [key, value] of Object.entries(obj)) {
+          const fieldName = key.charAt(0).toUpperCase() + key.slice(1);
+          let goType;
+          if (value === null) goType = 'interface{}';
+          else if (typeof value === 'boolean') goType = 'bool';
+          else if (typeof value === 'number') goType = Number.isInteger(value) ? 'int' : 'float64';
+          else if (typeof value === 'string') goType = 'string';
+          else if (Array.isArray(value)) {
+            if (value.length === 0) goType = '[]interface{}';
+            else {
+              const itemType = typeof value[0] === 'object' ? fieldName + 'Item' : 
+                             typeof value[0] === 'number' ? (Number.isInteger(value[0]) ? 'int' : 'float64') :
+                             typeof value[0] === 'boolean' ? 'bool' : 'string';
+              goType = `[]${itemType}`;
+            }
+          }
+          else if (typeof value === 'object') {
+            const nestedName = fieldName;
+            result = generateStruct(value, nestedName) + '\n\n' + result;
+            goType = nestedName;
+          }
+          else goType = 'interface{}';
+          
+          result += `    ${fieldName} ${goType} \`json:"${key}"\`\n`;
+        }
+        result += '}';
+        return result;
+      }
+      return generateStruct(obj, typeName);
+    }
+
+    function generateJava(obj, typeName) {
+      function generateClass(obj, name) {
+        let result = `public class ${name} {\n`;
+        for (const [key, value] of Object.entries(obj)) {
+          let javaType;
+          if (value === null) javaType = 'Object';
+          else if (typeof value === 'boolean') javaType = 'Boolean';
+          else if (typeof value === 'number') javaType = Number.isInteger(value) ? 'Integer' : 'Double';
+          else if (typeof value === 'string') javaType = 'String';
+          else if (Array.isArray(value)) {
+            if (value.length === 0) javaType = 'List<Object>';
+            else {
+              const itemType = typeof value[0] === 'object' ? name + 'Item' : 
+                             typeof value[0] === 'number' ? (Number.isInteger(value[0]) ? 'Integer' : 'Double') :
+                             typeof value[0] === 'boolean' ? 'Boolean' : 'String';
+              javaType = `List<${itemType}>`;
+            }
+          }
+          else if (typeof value === 'object') {
+            const nestedName = key.charAt(0).toUpperCase() + key.slice(1);
+            result = generateClass(value, nestedName) + '\n\n' + result;
+            javaType = nestedName;
+          }
+          else javaType = 'Object';
+          
+          result += `    private ${javaType} ${key};\n`;
+        }
+        
+        // Add getters and setters
+        for (const [key, value] of Object.entries(obj)) {
+          const methodName = key.charAt(0).toUpperCase() + key.slice(1);
+          let javaType;
+          if (value === null) javaType = 'Object';
+          else if (typeof value === 'boolean') javaType = 'Boolean';
+          else if (typeof value === 'number') javaType = Number.isInteger(value) ? 'Integer' : 'Double';
+          else if (typeof value === 'string') javaType = 'String';
+          else if (Array.isArray(value)) javaType = value.length === 0 ? 'List<Object>' : `List<${typeof value[0] === 'object' ? name + 'Item' : typeof value[0] === 'number' ? (Number.isInteger(value[0]) ? 'Integer' : 'Double') : typeof value[0] === 'boolean' ? 'Boolean' : 'String'}>`;
+          else if (typeof value === 'object') javaType = key.charAt(0).toUpperCase() + key.slice(1);
+          else javaType = 'Object';
+          
+          result += `\n    public ${javaType} get${methodName}() { return ${key}; }\n`;
+          result += `    public void set${methodName}(${javaType} ${key}) { this.${key} = ${key}; }\n`;
+        }
+        
+        result += '}';
+        return result;
+      }
+      return generateClass(obj, typeName);
+    }
+
+    document.getElementById('convert-btn').addEventListener('click', () => {
+      try {
+        const json = JSON.parse(document.getElementById('input').value);
+        const language = document.getElementById('language-select').value;
+        const typeName = document.getElementById('type-name').value || 'GeneratedType';
+        
+        let output;
+        switch (language) {
+          case 'typescript':
+            output = generateTypeScript(json, typeName);
+            break;
+          case 'go':
+            output = generateGo(json, typeName);
+            break;
+          case 'java':
+            output = generateJava(json, typeName);
+            break;
+        }
+        
+        document.getElementById('output').textContent = output;
+      } catch (e) {
+        document.getElementById('output').textContent = `Error: ${e.message}`;
+      }
+    });
+
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      const output = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(output);
+    });
+
+    // Sample data
+    document.getElementById('input').value = `{
+  "name": "John Doe",
+  "age": 30,
+  "active": true,
+  "address": {
+    "street": "123 Main St",
+    "city": "New York",
+    "zipCode": 10001
+  },
+  "hobbies": ["reading", "coding", "gaming"]
+}`;
+
+    // Theme toggle
+    const theme = localStorage.getItem('theme') || 'light';
+    document.documentElement.className = theme;
+    const icons = {
+      light: '<path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>',
+      dark: '<path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>'
+    };
+    document.getElementById('theme-icon').innerHTML = icons[theme];
+    
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      const currentTheme = localStorage.getItem('theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.className = newTheme;
+      localStorage.setItem('theme', newTheme);
+      document.getElementById('theme-icon').innerHTML = icons[newTheme];
+    });
+  </script>
+</body>
+</html>

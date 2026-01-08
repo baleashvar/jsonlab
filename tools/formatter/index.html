@@ -179,6 +179,15 @@
         output.innerHTML = syntaxHighlight(formatted);
         status.textContent = '✓ Valid JSON';
         status.className = 'text-xs text-green-600 dark:text-green-400';
+        
+        // Track usage for bookmark prompt
+        let formatCount = parseInt(localStorage.getItem('jsonlab_format_count') || '0');
+        formatCount++;
+        localStorage.setItem('jsonlab_format_count', formatCount.toString());
+        
+        if (formatCount >= 2 && !localStorage.getItem('jsonlab_bookmark_dismissed')) {
+          setTimeout(showBookmarkPrompt, 1000);
+        }
       } catch (e) {
         output.textContent = '';
         status.textContent = `✗ Error: ${e.message}`;
@@ -368,6 +377,25 @@
       a.download = 'formatted_json_files.zip';
       a.click();
       URL.revokeObjectURL(url);
+    };
+    
+    const showBookmarkPrompt = () => {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-4 right-4 bg-gray-900 text-white p-3 rounded-lg shadow-xl border border-gray-700 flex items-center gap-3 text-sm z-50';
+      toast.innerHTML = `
+        <span>⭐ Bookmark for quick access (Ctrl+D)</span>
+        <button id="dismiss-bookmark" class="text-gray-400 hover:text-white">✕</button>
+      `;
+      document.body.appendChild(toast);
+      
+      document.getElementById('dismiss-bookmark').addEventListener('click', () => {
+        localStorage.setItem('jsonlab_bookmark_dismissed', 'true');
+        toast.remove();
+      });
+      
+      setTimeout(() => {
+        if (document.body.contains(toast)) toast.remove();
+      }, 8000);
     };
     
     document.getElementById('batch-upload').addEventListener('change', (e) => {
