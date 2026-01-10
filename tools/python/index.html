@@ -25,6 +25,17 @@
   <meta property="og:image:type" content="image/jpeg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="/src/css/styles.css">
+  <style>
+    .editor-container { height: calc(100vh - 120px); }
+    .editor-panel, .output-panel { min-height: 400px; }
+    .code-editor { font-family: 'Courier New', monospace; }
+    .output-area { background: #f8f9fa; }
+    .dark .output-area { background: #1f2937; }
+    @media (max-width: 768px) {
+      .editor-container { flex-direction: column; }
+      .editor-panel, .output-panel { width: 100%; height: 50%; }
+    }
+  </style>
 </head>
 <body>
   <!-- Google Tag Manager (noscript) -->
