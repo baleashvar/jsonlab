@@ -133,41 +133,39 @@
           ▶
         </button>
       </div>
-      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false"># Factorial Calculator in Python
-# Note: input() is not supported in browser Python
-# Use direct assignment instead
+      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false"># Simple Python Examples - All tested and working
 
+# Basic math and variables
+print("Hello, World!")
+print("Welcome to Python compiler!")
+
+# Variables and calculations
+name = "Python"
+version = 3.9
+print("Language:", name)
+print("Version:", version)
+
+# Loops
+for i in range(5):
+    print("Count:", i)
+
+# Functions
 def factorial(n):
-    """Return the factorial of a non-negative integer n."""
-    if n == 0 or n == 1:
+    if n <= 1:
         return 1
     result = 1
     for i in range(2, n + 1):
-        result *= i
+        result = result * i
     return result
 
-def main():
-    try:
-        # Direct assignment instead of input()
-        user_input = "5"  # Change this value to test
-        
-        # Validate input
-        if not user_input.isdigit():
-            raise ValueError("Input must be a non-negative integer.")
-        
-        num = int(user_input)
-        
-        # Compute factorial
-        fact = factorial(num)
-        
-        # Display result
-        print(f"Factorial of {num} is: {fact}")
-    
-    except ValueError as e:
-        print(f"Error: {e}")
+# Test the function
+num = 5
+result = factorial(num)
+print("Factorial of", num, "is:", result)
 
-if __name__ == "__main__":
-    main()</textarea>
+# Math library
+import math
+print("Pi =", round(math.pi, 4))</textarea>
     </div>
 
     <!-- Right Panel - Output -->
