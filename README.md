@@ -143,21 +143,6 @@ npm run dev
 
 Visit `http://localhost:5173`
 
-## 📦 Deploy to Cloudflare Pages
-
-1. Build the project:
-```bash
-npm run build
-```
-
-2. Push to GitHub
-
-3. In Cloudflare Pages:
-   - Connect your GitHub repo
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-   - Framework preset: `Vite`
-
 ## 📊 Performance & Technical Details
 
 - **Lighthouse Score**: 95+ across all metrics
@@ -169,7 +154,7 @@ npm run build
 
 ## 🔐 Privacy & Security
 
-- **Zero Data Collection** - No analytics, tracking, or data storage
+- **Zero Data Collection** - No tracking, or data storage
 - **Client-Side Processing** - All tools run in your browser
 - **No Server Requests** - Your data never leaves your device
 - **Open Source** - Transparent code you can audit
