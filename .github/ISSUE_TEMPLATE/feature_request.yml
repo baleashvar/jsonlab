@@ -28,7 +28,6 @@ body:
       options:
         - JSON Tools
         - Python Compiler
-        - React Playground
         - Go Compiler
         - AI Tools
         - General/UI

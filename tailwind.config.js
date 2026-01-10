@@ -1,5 +1,12 @@
 export default {
-  content: ['./**/*.html', './src/**/*.js'],
+  content: [
+    './index.html',
+    './tools/**/*.html',
+    './ai-tools/**/*.html', 
+    './blog/**/*.html',
+    './about/**/*.html',
+    './src/**/*.{js,ts,jsx,tsx}'
+  ],
   darkMode: 'class',
   theme: {
     extend: {

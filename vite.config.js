@@ -22,6 +22,8 @@ export default defineConfig({
         jwtDecoder: resolve(__dirname, 'tools/jwt-decoder/index.html'),
         jsonToTypes: resolve(__dirname, 'tools/json-to-types/index.html'),
         xmlFormatter: resolve(__dirname, 'tools/xml-formatter/index.html'),
+        hashGenerator: resolve(__dirname, 'tools/hash-generator/index.html'),
+        python: resolve(__dirname, 'tools/python/index.html'),
         golang: resolve(__dirname, 'tools/golang/index.html'),
         // AI Tools
         aiTools: resolve(__dirname, 'ai-tools/index.html'),

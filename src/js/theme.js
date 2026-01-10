@@ -4,17 +4,22 @@ const icons = {
 };
 const theme = localStorage.getItem('theme') || 'light';
 document.documentElement.className = theme;
-if(document.getElementById('theme-icon')) {
-  document.getElementById('theme-icon').innerHTML = icons[theme];
+
+// Cache DOM elements for better performance
+const themeIcon = document.getElementById('theme-icon');
+const themeToggle = document.getElementById('theme-toggle');
+
+if(themeIcon) {
+  themeIcon.innerHTML = icons[theme];
 }
-if(document.getElementById('theme-toggle')) {
-  document.getElementById('theme-toggle').addEventListener('click', () => {
+
+if(themeToggle) {
+  themeToggle.addEventListener('click', () => {
     const newTheme = document.documentElement.className === 'dark' ? 'light' : 'dark';
     document.documentElement.className = newTheme;
     localStorage.setItem('theme', newTheme);
-    const themeIcon = document.getElementById('theme-icon');
-  if (themeIcon) {
-    themeIcon.innerHTML = icons[newTheme];
-  }
+    if (themeIcon) {
+      themeIcon.innerHTML = icons[newTheme];
+    }
   });
 }

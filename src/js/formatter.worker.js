@@ -2,16 +2,16 @@ self.onmessage = (e) => {
   const { action, data, indent } = e.data;
   
   try {
+    // Parse once and reuse for better performance
+    const parsed = JSON.parse(data);
+    
     if (action === 'format') {
-      const parsed = JSON.parse(data);
       const formatted = JSON.stringify(parsed, null, indent || 2);
       self.postMessage({ success: true, result: formatted });
     } else if (action === 'minify') {
-      const parsed = JSON.parse(data);
       const minified = JSON.stringify(parsed);
       self.postMessage({ success: true, result: minified });
     } else if (action === 'validate') {
-      JSON.parse(data);
       self.postMessage({ success: true, valid: true });
     } else {
       self.postMessage({ success: false, error: 'Unknown action' });

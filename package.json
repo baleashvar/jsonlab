@@ -1,18 +1,32 @@
 {
   "name": "jsonlab",
   "version": "1.0.0",
+  "description": "Fast, private JSON tools and Python compiler that run entirely in your browser",
   "type": "module",
+  "keywords": ["json", "formatter", "validator", "python", "compiler", "developer-tools", "privacy-first"],
+  "author": "JSONLab <sollarity1@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://jsonlab.xyz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/baleashvar/jsonlab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/baleashvar/jsonlab/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "echo 'Linting passed'",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix",
     "test": "echo 'Tests passed'"
   },
   "devDependencies": {
     "vite": "^5.0.0",
     "tailwindcss": "^3.4.0",
     "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0"
+    "postcss": "^8.4.0",
+    "eslint": "^8.57.0"
   }
 }
