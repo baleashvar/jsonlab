@@ -491,12 +491,19 @@ Features:
       } catch (err) {
         let errorMsg = err.toString();
         
-        // Better error formatting
+        // Better error formatting for Skulpt limitations
         if (errorMsg.includes('bad input')) {
-          const match = errorMsg.match(/line (\d+)/);
-          if (match) {
-            const lineNum = match[1];
-            errorMsg = `Syntax Error on line ${lineNum}. Check for:\n- Missing colons (:) after if/for/while/def\n- Incorrect indentation\n- Unmatched parentheses or quotes`;
+          // Check for common Skulpt issues
+          if (code.includes('f"') || code.includes("f'")) {
+            errorMsg = 'Error: f-strings are not supported in browser Python.\n\nUse this instead:\nprint("Value:", variable)  # Instead of print(f"Value: {variable}")';
+          } else if (code.includes('if __name__')) {
+            errorMsg = 'Error: if __name__ == "__main__" is not supported.\n\nJust call your functions directly:\nmain()  # Instead of if __name__ == "__main__": main()';
+          } else {
+            const match = errorMsg.match(/line (\d+)/);
+            if (match) {
+              const lineNum = match[1];
+              errorMsg = `Syntax Error on line ${lineNum}. Check for:\n- Missing colons (:) after if/for/while/def\n- Incorrect indentation\n- Unmatched parentheses or quotes\n- f-strings (use regular strings)\n- Unsupported Python features`;
+            }
           }
         }
         
