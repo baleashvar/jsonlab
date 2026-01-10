@@ -1,0 +1,78 @@
+name: Good First Issue
+description: Perfect for new contributors
+title: "[Good First Issue] "
+labels: ["good first issue", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        👋 **Welcome new contributors!** This issue is perfect for getting started with JSONLab.
+        
+        **What makes this a good first issue:**
+        - Clear requirements and acceptance criteria
+        - Limited scope and complexity
+        - Good documentation and examples
+        - Maintainer support available
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: What needs to be implemented or fixed?
+      placeholder: Describe the feature or bug fix needed
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: What defines "done" for this issue?
+      placeholder: |
+        - [ ] Requirement 1
+        - [ ] Requirement 2
+        - [ ] Tests pass
+        - [ ] Mobile responsive
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area of JSONLab
+      options:
+        - JSON Tools
+        - Python Compiler
+        - Go Compiler
+        - AI Tools
+        - UI/UX
+        - Documentation
+        - Testing
+    validations:
+      required: true
+
+  - type: textarea
+    id: help
+    attributes:
+      label: Getting Started Help
+      description: Resources and guidance for new contributors
+      placeholder: |
+        **Files to look at:**
+        - `tools/example/index.html`
+        
+        **Similar implementations:**
+        - Check `tools/formatter/` for patterns
+        
+        **Need help?** Comment on this issue or email sollarity1@gmail.com
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contributor Checklist
+      options:
+        - label: I'm interested in working on this issue
+          required: false
+        - label: This is my first contribution to JSONLab
+          required: false
+        - label: I need help getting started
+          required: false
