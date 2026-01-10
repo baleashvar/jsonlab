@@ -503,7 +503,7 @@ Features:
         }
         
         // Handle unsupported functions
-        if (errorMsg.includes('input is not defined') || code.includes('input(')) {
+        if (errorMsg.includes('input is not defined')) {
           errorMsg = 'Error: input() function is not supported in browser Python.\n\nTry this instead:\n# Replace input() with direct assignment\nuser_input = "5"  # Your test value\nnum = int(user_input)';
         }
         
