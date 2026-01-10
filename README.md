@@ -96,6 +96,44 @@ JSONLab provides lightning-fast, privacy-first JSON tools that run entirely in y
 - **[Python JSON Parsing](https://jsonlab.xyz/blog/python-json-parsing/)** - Complete tutorial with examples
 - **[API Testing with JSON](https://jsonlab.xyz/blog/api-testing-json/)** - Tools and techniques
 
+## 📂 Project Structure
+
+```
+jsonlab/
+├── 📁 tools/                    # Core JSON & Developer Tools
+│   ├── formatter/               # JSON Formatter with syntax highlighting
+│   ├── validator/               # JSON Validator with error detection
+│   ├── python/                  # Python Compiler (Skulpt + Pyodide)
+│   ├── golang/                  # Go Compiler with stdlib support
+│   └── [15+ other tools]/       # Minifier, converters, encoders, etc.
+├── 📁 ai-tools/                 # AI Developer Tools
+│   ├── token-calculator/        # LLM token estimation
+│   ├── vector-similarity/       # Embedding comparison
+│   └── rag-chunking/           # RAG optimization tools
+├── 📁 src/
+│   ├── css/styles.css          # Tailwind CSS + custom styles
+│   └── js/
+│       ├── formatter.worker.js  # Web Worker for JSON processing
+│       └── theme.js            # Dark/light theme management
+├── 📁 .github/                  # GitHub automation & templates
+│   ├── workflows/ci.yml        # Automated testing & deployment
+│   └── ISSUE_TEMPLATE/         # Issue & PR templates
+├── 📁 public/                   # Static assets & PWA files
+│   ├── manifest.json           # Progressive Web App config
+│   └── favicon.ico             # Site icons & metadata
+└── 📄 Core Files
+    ├── index.html              # Main landing page
+    ├── vite.config.js          # Build configuration
+    └── package.json            # Dependencies & scripts
+```
+
+### 🎯 Key Architecture Decisions
+- **Static Site**: No server required, works offline
+- **Web Workers**: Heavy processing doesn't block UI
+- **Modular Tools**: Each tool is self-contained in `/tools/`
+- **Privacy-First**: All processing happens client-side
+- **Mobile-Optimized**: Touch-friendly UI with responsive design
+
 ## 🚀 Quick Start (Development)
 
 ```bash
