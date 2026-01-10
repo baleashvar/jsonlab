@@ -29,8 +29,14 @@
     .editor-container { height: calc(100vh - 120px); }
     .editor-panel, .output-panel { min-height: 400px; }
     .code-editor { font-family: 'Courier New', monospace; }
-    .output-area { background: #f8f9fa; }
-    .dark .output-area { background: #1f2937; }
+    .output-area { 
+      background: #f8f9fa; 
+      color: #000 !important;
+    }
+    .dark .output-area { 
+      background: #1f2937; 
+      color: #fff !important;
+    }
     @media (max-width: 768px) {
       .editor-container { flex-direction: column; }
       .editor-panel, .output-panel { width: 100%; height: 50%; }
@@ -459,7 +465,18 @@ Features:
           return Sk.importMainWithBody("<stdin>", false, code, true);
         });
       } catch (err) {
-        output.textContent += `Error: ${err.toString()}\n`;
+        let errorMsg = err.toString();
+        
+        // Better error formatting
+        if (errorMsg.includes('bad input')) {
+          const match = errorMsg.match(/line (\d+)/);
+          if (match) {
+            const lineNum = match[1];
+            errorMsg = `Syntax Error on line ${lineNum}. Check for:\n- Missing colons (:) after if/for/while/def\n- Incorrect indentation\n- Unmatched parentheses or quotes`;
+          }
+        }
+        
+        output.textContent += `Error: ${errorMsg}\n`;
       }
       
       output.textContent += '\n[Execution Finished]\n';
@@ -489,12 +506,28 @@ Features:
     // Test connectivity on page load
     async function testConnectivity() {
       try {
-        const response = await fetch('https://cdnjs.cloudflare.com/ajax/libs/skulpt/0.11.1/skulpt.min.js', { method: 'HEAD' });
-        if (!response.ok) {
-          pythonStatus.textContent = 'Warning: CDN connectivity issues detected';
+        // Test with a simple fetch to a reliable CDN
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const response = await fetch('https://unpkg.com/skulpt@0.11.1/dist/skulpt.min.js', { 
+          method: 'HEAD',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          pythonStatus.textContent = 'Python loads automatically on first run';
+        } else {
+          pythonStatus.textContent = 'CDN access limited - Python will still work';
         }
       } catch (error) {
-        pythonStatus.textContent = 'Warning: No internet connection detected';
+        if (error.name === 'AbortError') {
+          pythonStatus.textContent = 'Slow connection detected - Python may take longer to load';
+        } else {
+          pythonStatus.textContent = 'Offline mode - Python will work after first online load';
+        }
       }
     }
     
