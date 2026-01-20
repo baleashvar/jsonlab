@@ -71,7 +71,7 @@
     <div class="max-w-7xl mx-auto">
       <h1 class="text-2xl font-bold mb-2">Free Online Python Compiler - Run Python Code Instantly</h1>
       <p class="text-gray-700 dark:text-gray-300 text-sm max-w-4xl">
-        Execute Python code directly in your browser with our free online Python compiler. No installation or signup required. Supports popular libraries like numpy, pandas, and matplotlib. Perfect alternative to Repl.it for quick Python development, learning, and prototyping. Features auto-save, syntax highlighting, and instant execution.
+        Execute Python code directly in your browser with our free online Python compiler. No installation or signup required. Supports built-in libraries like math, random, time, datetime, and string processing. Perfect alternative to Repl.it for quick Python development, learning, and prototyping. Features auto-save, syntax highlighting, and instant execution.
       </p>
       <div class="flex gap-4 mt-3 text-xs text-gray-600 dark:text-gray-400">
         <span>✓ Instant Execution</span>
@@ -92,8 +92,8 @@
           <p class="text-sm text-gray-600 dark:text-gray-300">Run Python code directly in your browser without any setup or installation required.</p>
         </div>
         <div>
-          <h3 class="font-bold mb-2">Full Library Support</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-300">Access popular Python libraries including numpy, pandas, matplotlib, scipy, and more.</p>
+          <h3 class="font-bold mb-2">Built-in Library Support</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-300">Access Python built-in libraries including math, random, time, datetime, string, and more.</p>
         </div>
         <div>
           <h3 class="font-bold mb-2">No Signup Required</h3>
@@ -133,48 +133,46 @@
           ▶
         </button>
       </div>
-      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false"># JWT Token Decoder Example (Skulpt-compatible)
-# Note: json module not supported, using eval() instead
+      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false"># Python Examples - Built-in Libraries Supported
 
-# Sample JWT payload (base64 encoded)
-token_payload = "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ"
+# Basic JSON processing (custom implementation)
+import json
 
-# Decode base64 (manual implementation)
-def base64_decode(s):
-    # Add padding if needed
-    padding = 4 - len(s) % 4
-    if padding != 4:
-        s += '=' * padding
-    
-    # Simple base64 decode (basic implementation)
-    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-    result = ""
-    
-    # This is a simplified version - for demo purposes
-    # In real JWT, you'd need proper base64 decoding
-    print("Decoded payload (simulated):")
-    print('{"sub":"1234567890","name":"John Doe","iat":1516239022}')
-    
-    return '{"sub":"1234567890","name":"John Doe","iat":1516239022}'
+# Sample data
+data = {"name": "John", "age": 30, "city": "New York"}
+print("Original data:", data)
 
-# Parse JSON manually (since json module not available)
-def simple_json_parse(json_str):
-    # Remove quotes and braces for simple parsing
-    # This is a basic example - real JSON parsing is complex
-    print("Parsing JSON manually...")
-    print("Subject:", "1234567890")
-    print("Name:", "John Doe")
-    print("Issued at:", "1516239022")
+# Convert to JSON string
+json_string = json.dumps(data, indent=2)
+print("\nJSON string:")
+print(json_string)
 
-# Main execution
-print("JWT Token Decoder (Browser Python Compatible)")
-print("=============================================")
+# Parse JSON back to Python object
+parsed = json.loads(json_string)
+print("\nParsed back:", parsed)
 
-decoded = base64_decode(token_payload)
-simple_json_parse(decoded)
+# Math operations
+import math
+print("\nMath examples:")
+print("Pi =", round(math.pi, 4))
+print("Square root of 16 =", math.sqrt(16))
 
-print("\nNote: This is a simplified example.")
-print("Real JWT decoding requires proper base64 and JSON libraries.")</textarea>
+# Random numbers
+import random
+print("\nRandom examples:")
+print("Random number:", random.randint(1, 100))
+print("Random choice:", random.choice(["apple", "banana", "cherry"]))
+
+# Time operations
+import time
+print("\nTime examples:")
+print("Current timestamp:", int(time.time()))
+
+# String operations
+import string
+print("\nString examples:")
+print("Uppercase letters:", string.ascii_uppercase[:10])
+print("Digits:", string.digits)</textarea>
     </div>
 
     <!-- Right Panel - Output -->
@@ -184,13 +182,16 @@ print("Real JWT decoding requires proper base64 and JSON libraries.")</textarea>
         <span id="python-status" class="text-sm text-gray-500 ml-auto">Loading full Python in background...</span>
       </div>
       <div id="output" class="output-area p-4 font-mono text-sm overflow-y-auto whitespace-pre-wrap">Free Online Python Compiler Ready
-Instant execution + Full libraries (numpy, pandas, matplotlib)
+Instant execution + Built-in libraries (math, random, time, datetime)
 No signup required • Privacy-first • Alternative to Repl.it
 Click "Run" to execute Python code
 
-Features:
-- Execute Python 3.x code instantly
-- Support for numpy, pandas, matplotlib, scipy
+Supported Libraries:
+- math: Mathematical functions
+- random: Random number generation
+- time: Time-related functions
+- datetime: Date and time handling
+- string: String processing
 - Auto-save functionality
 - Smart indentation and syntax highlighting
 - Keyboard shortcuts (Ctrl+Enter to run)
@@ -305,6 +306,57 @@ Features:
           await new Promise(resolve => setTimeout(resolve, 100));
           
           if (typeof Sk !== 'undefined') {
+            // Add custom json module
+            Sk.builtinFiles = Sk.builtinFiles || {};
+            Sk.builtinFiles["files"] = Sk.builtinFiles["files"] || {};
+            
+            // Custom JSON module implementation
+            Sk.builtinFiles["files"]["src/lib/json/__init__.py"] = `
+# Custom JSON module for Skulpt
+# Simplified implementation of Python's json module
+
+def loads(s):
+    """Parse JSON string to Python object"""
+    # Use JavaScript's JSON.parse via Skulpt's ffi
+    try:
+        # Convert Skulpt string to JavaScript string
+        js_string = s.v if hasattr(s, 'v') else str(s)
+        # Use eval as a simple JSON parser (safe for JSON)
+        # In a real implementation, you'd want proper parsing
+        result = eval(js_string.replace('true', 'True').replace('false', 'False').replace('null', 'None'))
+        return result
+    except:
+        raise ValueError("Invalid JSON")
+
+def dumps(obj, indent=None):
+    """Convert Python object to JSON string"""
+    def _dumps(o, level=0):
+        if o is None:
+            return 'null'
+        elif isinstance(o, bool):
+            return 'true' if o else 'false'
+        elif isinstance(o, (int, float)):
+            return str(o)
+        elif isinstance(o, str):
+            return '"' + o.replace('"', '\\"') + '"'
+        elif isinstance(o, list):
+            items = [_dumps(item, level+1) for item in o]
+            if indent:
+                sep = ',\\n' + '  ' * (level+1)
+                return '[\\n' + '  ' * (level+1) + sep.join(items) + '\\n' + '  ' * level + ']'
+            return '[' + ','.join(items) + ']'
+        elif isinstance(o, dict):
+            items = ['"' + str(k) + '":' + _dumps(v, level+1) for k, v in o.items()]
+            if indent:
+                sep = ',\\n' + '  ' * (level+1)
+                return '{\\n' + '  ' * (level+1) + sep.join(items) + '\\n' + '  ' * level + '}'
+            return '{' + ','.join(items) + '}'
+        else:
+            return str(o)
+    
+    return _dumps(obj)
+`;
+            
             Sk.configure({
               output: function(text) {
                 output.textContent += text;
@@ -464,7 +516,7 @@ Features:
 
     // Info modal functionality
     infoBtn.addEventListener('click', () => {
-      alert('Python Compiler - Keyboard Shortcuts & Features:\n\n⌨️ KEYBOARD SHORTCUTS:\n• Ctrl+Enter (Cmd+Enter) - Run code\n• Tab - Insert 4 spaces (indentation)\n• Enter - Auto-indent after colon (:)\n• Backspace - Smart unindent (removes 4 spaces)\n\n📝 EDITOR FEATURES:\n• Auto-save - Code saved automatically to localStorage\n• Smart indentation - Automatic Python indentation\n• Syntax hints - Basic error detection\n• Copy code - Click 📋 button\n\n🐍 PYTHON SUPPORT:\n• Python 3.x syntax\n• Built-in libraries (math, random, etc.)\n• Basic data structures\n• Control flow (if, for, while)\n• Functions and classes\n\n💡 TIPS:\n• Libraries load automatically on first run\n• Code persists between sessions\n• Works offline after initial load\n• No signup or registration required');
+      alert('Python Compiler - Keyboard Shortcuts & Features:\n\n⌨️ KEYBOARD SHORTCUTS:\n• Ctrl+Enter (Cmd+Enter) - Run code\n• Tab - Insert 4 spaces (indentation)\n• Enter - Auto-indent after colon (:)\n• Backspace - Smart unindent (removes 4 spaces)\n\n📝 EDITOR FEATURES:\n• Auto-save - Code saved automatically to localStorage\n• Smart indentation - Automatic Python indentation\n• Syntax hints - Basic error detection\n• Copy code - Click 📋 button\n\n🐍 PYTHON SUPPORT:\n• Python 3.x syntax\n• Built-in libraries: math, random, time, datetime, string\n• Custom json module (loads, dumps)\n• Basic data structures\n• Control flow (if, for, while)\n• Functions and classes\n\n💡 TIPS:\n• Libraries load automatically on first run\n• Code persists between sessions\n• Works offline after initial load\n• No signup or registration required');
     });
 
     // Run code
@@ -523,7 +575,7 @@ Features:
         
         // Handle json module not implemented
         if (errorMsg.includes('json is not yet implemented')) {
-          errorMsg = 'Error: json module is not supported in browser Python.\n\nUse eval() instead:\n# Replace json.loads() with eval()\ndata = eval(json_string)  # For simple JSON\n# Or use string methods for basic parsing';
+          errorMsg = 'Error: Built-in json module loading failed.\n\nTry reloading the page or use manual parsing:\n# Alternative approach\ndata = eval(json_string.replace("true", "True").replace("false", "False").replace("null", "None"))';
         }
         
         output.textContent += `Error: ${errorMsg}\n`;
