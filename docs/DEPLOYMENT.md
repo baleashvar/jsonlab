@@ -792,5 +792,5 @@ cat _redirects
 
 Current version: **1.0.0**
 
-See [CHANGELOG.md](./CHANGELOG.md) for version history and release notes.
+See [CHANGELOG.md](../CHANGELOG.md) for version history and release notes.
 
