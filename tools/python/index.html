@@ -30,11 +30,11 @@
     .editor-panel, .output-panel { min-height: 400px; }
     .code-editor { font-family: 'Courier New', monospace; }
     .output-area { 
-      background: #f8f9fa; 
+      background: #f8f9fa !important; 
       color: #000 !important;
     }
     .dark .output-area { 
-      background: #1f2937; 
+      background: #1f2937 !important; 
       color: #fff !important;
     }
     @media (max-width: 768px) {
@@ -133,39 +133,48 @@
           ▶
         </button>
       </div>
-      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false"># Simple Python Examples - All tested and working
+      <textarea id="editor" class="code-editor w-full p-4 border-none outline-none resize-none bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="# Write your Python code here..." spellcheck="false"># JWT Token Decoder Example (Skulpt-compatible)
+# Note: json module not supported, using eval() instead
 
-# Basic math and variables
-print("Hello, World!")
-print("Welcome to Python compiler!")
+# Sample JWT payload (base64 encoded)
+token_payload = "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ"
 
-# Variables and calculations
-name = "Python"
-version = 3.9
-print("Language:", name)
-print("Version:", version)
+# Decode base64 (manual implementation)
+def base64_decode(s):
+    # Add padding if needed
+    padding = 4 - len(s) % 4
+    if padding != 4:
+        s += '=' * padding
+    
+    # Simple base64 decode (basic implementation)
+    chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+    result = ""
+    
+    # This is a simplified version - for demo purposes
+    # In real JWT, you'd need proper base64 decoding
+    print("Decoded payload (simulated):")
+    print('{"sub":"1234567890","name":"John Doe","iat":1516239022}')
+    
+    return '{"sub":"1234567890","name":"John Doe","iat":1516239022}'
 
-# Loops
-for i in range(5):
-    print("Count:", i)
+# Parse JSON manually (since json module not available)
+def simple_json_parse(json_str):
+    # Remove quotes and braces for simple parsing
+    # This is a basic example - real JSON parsing is complex
+    print("Parsing JSON manually...")
+    print("Subject:", "1234567890")
+    print("Name:", "John Doe")
+    print("Issued at:", "1516239022")
 
-# Functions
-def factorial(n):
-    if n <= 1:
-        return 1
-    result = 1
-    for i in range(2, n + 1):
-        result = result * i
-    return result
+# Main execution
+print("JWT Token Decoder (Browser Python Compatible)")
+print("=============================================")
 
-# Test the function
-num = 5
-result = factorial(num)
-print("Factorial of", num, "is:", result)
+decoded = base64_decode(token_payload)
+simple_json_parse(decoded)
 
-# Math library
-import math
-print("Pi =", round(math.pi, 4))</textarea>
+print("\nNote: This is a simplified example.")
+print("Real JWT decoding requires proper base64 and JSON libraries.")</textarea>
     </div>
 
     <!-- Right Panel - Output -->
@@ -510,6 +519,11 @@ Features:
         // Handle unsupported functions
         if (errorMsg.includes('input is not defined')) {
           errorMsg = 'Error: input() function is not supported in browser Python.\n\nTry this instead:\n# Replace input() with direct assignment\nuser_input = "5"  # Your test value\nnum = int(user_input)';
+        }
+        
+        // Handle json module not implemented
+        if (errorMsg.includes('json is not yet implemented')) {
+          errorMsg = 'Error: json module is not supported in browser Python.\n\nUse eval() instead:\n# Replace json.loads() with eval()\ndata = eval(json_string)  # For simple JSON\n# Or use string methods for basic parsing';
         }
         
         output.textContent += `Error: ${errorMsg}\n`;
