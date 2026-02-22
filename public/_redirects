@@ -1,8 +1,13 @@
-# Cloudflare Pages redirects
-/www/* https://jsonlab.xyz/:splat 301
-https://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301
-http://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301
-http://jsonlab.xyz/* https://jsonlab.xyz/:splat 301
+# Cloudflare Pages redirects - Fix www and http redirects
+https://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301!
+http://www.jsonlab.xyz/* https://jsonlab.xyz/:splat 301!
+http://jsonlab.xyz/* https://jsonlab.xyz/:splat 301!
+
+# Block email protection crawling
+/cdn-cgi/l/email-protection /404.html 404
+
+# Handle query parameters properly
+/?* / 200
 
 # SPA fallback for all tools
 /tools/formatter/* /tools/formatter/index.html 200
